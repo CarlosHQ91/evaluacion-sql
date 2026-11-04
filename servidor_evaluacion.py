@@ -1442,15 +1442,10 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
         if (letra === q.correcta) b.classList.add("correct-choice");
       }});
 
-      // Rotar personaje de la tripulación de los Sombrero de Paja
-      let crewIdx;
-      do {{
-        crewIdx = Math.floor(Math.random() * MUGIWARA_CREW.length);
-      }} while (crewIdx === lastCrewIndex && MUGIWARA_CREW.length > 1);
-      lastCrewIndex = crewIdx;
-
-      const char = MUGIWARA_CREW[crewIdx];
-      const randomQuote = char.quotes[Math.floor(Math.random() * char.quotes.length)];
+      // Obtener siguiente chiste sin repetición (baraja por rondas)
+      const itemChiste = obtenerSiguienteChiste();
+      const char = itemChiste.char;
+      const randomQuote = itemChiste.quote;
 
       playSound(char.sound);
 

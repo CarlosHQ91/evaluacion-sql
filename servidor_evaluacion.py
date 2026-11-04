@@ -439,12 +439,12 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
       gap: 14px;
     }}
 
-    /* MODAL CÓMICO DE LUFFY */
+    /* MODAL CÓMICO DE LA TRIPULACIÓN MUGIWARA */
     .luffy-overlay {{
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(15, 23, 42, 0.55);
-      backdrop-filter: blur(5px);
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -455,9 +455,9 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
     .luffy-card {{
       background: var(--card-bg);
       border-radius: var(--radius-lg);
-      max-width: 500px;
+      max-width: 520px;
       width: 100%;
-      padding: 34px 28px;
+      padding: 30px 24px;
       text-align: center;
       box-shadow: 18px 18px 45px rgba(0,0,0,0.35), -12px -12px 30px var(--shadow-light);
       animation: luffyBounceIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -470,17 +470,33 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
       100% {{ transform: scale(1) rotate(0deg); }}
     }}
 
+    .crew-badge {{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 16px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+      transition: all 0.3s ease;
+    }}
+
     .luffy-avatar-box {{
-      width: 120px;
-      height: 120px;
+      width: 122px;
+      height: 122px;
       border-radius: 50%;
-      margin: 0 auto 16px auto;
+      margin: 0 auto 14px auto;
       background: var(--card-bg);
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
       animation: luffyLaughRock 2s infinite ease-in-out;
+      overflow: hidden;
     }}
 
     @keyframes luffyLaughRock {{
@@ -489,35 +505,41 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
     }}
 
     .luffy-title {{
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: 800;
-      color: #b91c1c;
       letter-spacing: -0.01em;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      transition: color 0.3s ease;
     }}
 
     .luffy-bubble {{
-      background: #fef2f2;
-      border: 2px dashed #f87171;
       border-radius: var(--radius-md);
       padding: 16px 20px;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       font-weight: 700;
-      color: #991b1b;
       line-height: 1.5;
-      margin-bottom: 22px;
-      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05);
+      margin-bottom: 18px;
+      box-shadow: inset 2px 2px 6px rgba(0,0,0,0.06);
+      transition: all 0.3s ease;
+      min-height: 65px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }}
 
     .correct-reminder {{
       font-size: 0.95rem;
       color: #4a5568;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
       font-weight: 600;
+      background: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
     }}
 
     /* Pantalla Resultados */
@@ -696,48 +718,31 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
 
 </div>
 
-<!-- MODAL CÓMICO DE LUFFY -->
+<!-- MODAL CÓMICO DE LA TRIPULACIÓN MUGIWARA -->
 <div id="luffy-modal" class="luffy-overlay">
   <div class="luffy-card">
-    <div class="luffy-avatar-box">
-      <svg viewBox="0 0 120 120" width="105" height="105" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="60" cy="38" rx="55" ry="16" fill="#eab308" stroke="#ca8a04" stroke-width="3"/>
-        <path d="M30,36 C30,12 90,12 90,36 Z" fill="#eab308" stroke="#ca8a04" stroke-width="3"/>
-        <path d="M30,34 C45,39 75,39 90,34 L90,27 C75,32 45,32 30,27 Z" fill="#dc2626"/>
-        <path d="M25,44 Q35,60 22,70 Q40,65 38,78 Q50,60 52,48" fill="#18181b"/>
-        <path d="M95,44 Q85,60 98,70 Q80,65 82,78 Q70,60 68,48" fill="#18181b"/>
-        <ellipse cx="60" cy="66" rx="34" ry="32" fill="#fed7aa"/>
-        <path d="M70,68 L78,72 M72,68 L74,72 M76,69 L77,73" stroke="#991b1b" stroke-width="2" stroke-linecap="round"/>
-        <ellipse cx="46" cy="56" rx="7.5" ry="9" fill="#ffffff" stroke="#18181b" stroke-width="2.5"/>
-        <ellipse cx="74" cy="56" rx="7.5" ry="9" fill="#ffffff" stroke="#18181b" stroke-width="2.5"/>
-        <circle cx="46" cy="56" r="3.5" fill="#18181b"/>
-        <circle cx="74" cy="56" r="3.5" fill="#18181b"/>
-        <circle cx="48" cy="54" r="1.5" fill="#ffffff"/>
-        <circle cx="76" cy="54" r="1.5" fill="#ffffff"/>
-        <ellipse cx="34" cy="67" rx="5" ry="3" fill="#fca5a5" opacity="0.8"/>
-        <ellipse cx="86" cy="67" rx="5" ry="3" fill="#fca5a5" opacity="0.8"/>
-        <path d="M36,73 Q60,104 84,73 Z" fill="#991b1b" stroke="#18181b" stroke-width="3"/>
-        <path d="M39,75 Q60,94 81,75 Z" fill="#ffffff"/>
-        <line x1="60" y1="75" x2="60" y2="90" stroke="#d1d5db" stroke-width="2"/>
-        <line x1="50" y1="75" x2="50" y2="86" stroke="#d1d5db" stroke-width="1.5"/>
-        <line x1="70" y1="75" x2="70" y2="86" stroke="#d1d5db" stroke-width="1.5"/>
-      </svg>
+    <div id="crew-tag" class="crew-badge">
+      👒 Monkey D. Luffy — Capitán
     </div>
 
-    <div class="luffy-title">
+    <div class="luffy-avatar-box" id="crew-avatar-box">
+      <!-- Avatar dinámico inyectado por JS -->
+    </div>
+
+    <div class="luffy-title" id="crew-title">
       <span>👒</span>
-      <span>¡SHISHISHI! ¡FALLASTE NAKAMA!</span>
+      <span>¡SHISHISHI! ¡FALLASTE LA CONSULTA, NAKAMA!</span>
     </div>
 
     <div class="luffy-bubble" id="luffy-quote">
-      "¡¿NANIIIII?! ¡Ni con el Gear 5 salvaste esa consulta!"
+      "¡SHISHISHI! ¡Ni activando el Gear 5 salvaste esa consulta, nakama!"
     </div>
 
     <div class="correct-reminder" id="luffy-correct-note">
       La respuesta correcta era la opción <b>B</b>.
     </div>
 
-    <button class="btn btn-primary" onclick="cerrarLuffyModal()">
+    <button class="btn btn-primary" id="crew-modal-btn" onclick="cerrarLuffyModal()">
       <span>¡Continuar Navegando!</span>
       <span>➔</span>
     </button>
@@ -757,16 +762,214 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
 
   const STORAGE_KEY = "sql_exam_active_session";
 
-  const FRASES_LUFFY = [
-    "¡SHISHISHI! ¡Ni activando el Gear 5 salvaste esa consulta, nakama!",
-    "¡¿NANIIIII?! ¡Hasta Zoro con los ojos vendados se ubica mejor en esta tabla!",
-    "¡Gomu Gomu no... ERROR FATAL! ¡Esa respuesta mandó la base de datos al fondo del mar!",
-    "¡Shishishi! ¡Te comiste la Fruta del Error-Error no Mi!",
-    "¡¿Buggy te sopló esa respuesta?! ¡Esa opción no existe en el Grand Line!",
-    "¡Chopper, trae el botiquín urgente! ¡Acaban de romper la integridad referencial!",
-    "¡Shishishi! ¡Tranquilo nakama, hasta el futuro Rey de los Piratas tropieza a veces!",
-    "¡Gishishi! ¡Esa consulta fue directo a Impel Down Nivel 6!"
-  ];
+  const MUGIWARA_CREW = [
+  {{
+    "id": "luffy",
+    "name": "Monkey D. Luffy",
+    "role": "Capitán",
+    "icon": "👒",
+    "sound": "luffy",
+    "color": "#dc2626",
+    "bgLight": "#fef2f2",
+    "border": "#f87171",
+    "title": "¡SHISHISHI! ¡FALLASTE LA CONSULTA, NAKAMA!",
+    "quotes": [
+      "¡SHISHISHI! ¡Ni activando el Gear 5 salvaste esa consulta, nakama!",
+      "¡¿NANIIIII?! ¡Tengo tanta hambre de carne que hasta yo sé que esa no era la respuesta!",
+      "¡Gomu Gomu no... ERROR FATAL! ¡Esa sintaxis mandó la base de datos al fondo del océano!",
+      "¡Shishishi! ¡Te comiste la Fruta del Error-Error no Mi! ¡No sabes nadar ni configurar un GRANT!",
+      "¡¿Buggy el Payaso te sopló esa respuesta?! ¡Esa opción no existe ni en el Grand Line!",
+      "¡Chopper, trae carne y el botiquín urgente! ¡Acaban de romper la integridad referencial!",
+      "¡Shishishi! ¡Tranquilo nakama, hasta el futuro Rey de los Piratas tropieza a veces!",
+      "¡Gishishi! ¡Esa consulta fue directo a Impel Down Nivel 6 sin derecho a fianza!",
+      "¡Oye! ¡Si no estás seguro de la respuesta no inventes como Usopp! ¡Lee bien la bitácora!",
+      "¡Shishishi! ¡Ese host '%' que pusiste está más regalado que un banquete en Arabasta!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <ellipse cx=\"60\" cy=\"38\" rx=\"55\" ry=\"16\" fill=\"#eab308\" stroke=\"#ca8a04\" stroke-width=\"3\"/>\n  <path d=\"M30,36 C30,12 90,12 90,36 Z\" fill=\"#eab308\" stroke=\"#ca8a04\" stroke-width=\"3\"/>\n  <path d=\"M30,34 C45,39 75,39 90,34 L90,27 C75,32 45,32 30,27 Z\" fill=\"#dc2626\"/>\n  <path d=\"M25,44 Q35,60 22,70 Q40,65 38,78 Q50,60 52,48\" fill=\"#18181b\"/>\n  <path d=\"M95,44 Q85,60 98,70 Q80,65 82,78 Q70,60 68,48\" fill=\"#18181b\"/>\n  <ellipse cx=\"60\" cy=\"66\" rx=\"34\" ry=\"32\" fill=\"#fed7aa\"/>\n  <path d=\"M70,68 L78,72 M72,68 L74,72 M76,69 L77,73\" stroke=\"#991b1b\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"46\" cy=\"56\" rx=\"7.5\" ry=\"9\" fill=\"#ffffff\" stroke=\"#18181b\" stroke-width=\"2.5\"/>\n  <ellipse cx=\"74\" cy=\"56\" rx=\"7.5\" ry=\"9\" fill=\"#ffffff\" stroke=\"#18181b\" stroke-width=\"2.5\"/>\n  <circle cx=\"46\" cy=\"56\" r=\"3.5\" fill=\"#18181b\"/>\n  <circle cx=\"74\" cy=\"56\" r=\"3.5\" fill=\"#18181b\"/>\n  <circle cx=\"48\" cy=\"54\" r=\"1.5\" fill=\"#ffffff\"/>\n  <circle cx=\"76\" cy=\"54\" r=\"1.5\" fill=\"#ffffff\"/>\n  <ellipse cx=\"34\" cy=\"67\" rx=\"5\" ry=\"3\" fill=\"#fca5a5\" opacity=\"0.8\"/>\n  <ellipse cx=\"86\" cy=\"67\" rx=\"5\" ry=\"3\" fill=\"#fca5a5\" opacity=\"0.8\"/>\n  <path d=\"M36,73 Q60,104 84,73 Z\" fill=\"#991b1b\" stroke=\"#18181b\" stroke-width=\"3\"/>\n  <path d=\"M39,75 Q60,94 81,75 Z\" fill=\"#ffffff\"/>\n  <line x1=\"60\" y1=\"75\" x2=\"60\" y2=\"90\" stroke=\"#d1d5db\" stroke-width=\"2\"/>\n  <line x1=\"50\" y1=\"75\" x2=\"50\" y2=\"86\" stroke=\"#d1d5db\" stroke-width=\"1.5\"/>\n  <line x1=\"70\" y1=\"75\" x2=\"70\" y2=\"86\" stroke=\"#d1d5db\" stroke-width=\"1.5\"/>\n</svg>"
+  }},
+  {{
+    "id": "zoro",
+    "name": "Roronoa Zoro",
+    "role": "Espadachín",
+    "icon": "⚔️",
+    "sound": "zoro",
+    "color": "#059669",
+    "bgLight": "#ecfdf5",
+    "border": "#34d399",
+    "title": "¡TE PERDISTE DE TABLA, NAKAMA!",
+    "quotes": [
+      "¡Oye! ¡Hasta yo con mi pésimo sentido de orientación sé que por ahí no iba la consulta!",
+      "¡Santoryu: Corte de los Tres Errores! ¡Te perdiste peor que yo buscando el baño en Wano!",
+      "¿Seguro que leíste la guía de auditoría? Te fuiste en dirección exactamente contraria al servidor...",
+      "Un verdadero espadachín nunca falla una estocada... ¡pero tú le diste DELETE a todo sin WHERE!",
+      "¡Tch! ¡Esa respuesta no corta ni un archivo temporal! ¡Desenvaina mejor la sintaxis!",
+      "¿Quién puso esa opción ahí? Juraría que el camino a la clave foránea estaba a la derecha...",
+      "Si no sabes la respuesta, ¡entrena mil flexiones antes de volver a tocar la consola!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M26,52 Q24,18 60,18 Q96,18 94,52 Z\" fill=\"#16a34a\"/>\n  <path d=\"M30,35 Q60,25 90,35 Q85,15 60,15 Q35,15 30,35 Z\" fill=\"#15803d\"/>\n  <ellipse cx=\"60\" cy=\"66\" rx=\"33\" ry=\"31\" fill=\"#fed7aa\"/>\n  <path d=\"M28,45 Q60,38 92,45 L93,52 Q60,45 27,52 Z\" fill=\"#14532d\"/>\n  <path d=\"M38,48 Q48,43 54,49\" stroke=\"#0f172a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n  <path d=\"M66,49 Q72,43 82,48\" stroke=\"#0f172a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"46\" cy=\"56\" rx=\"6\" ry=\"6\" fill=\"#ffffff\" stroke=\"#0f172a\" stroke-width=\"2\"/>\n  <circle cx=\"46\" cy=\"56\" r=\"3\" fill=\"#0f172a\"/>\n  <circle cx=\"47\" cy=\"55\" r=\"1.2\" fill=\"#ffffff\"/>\n  <path d=\"M74,48 L74,65\" stroke=\"#7f1d1d\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <path d=\"M70,57 L78,57\" stroke=\"#0f172a\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <circle cx=\"28\" cy=\"68\" r=\"2.5\" fill=\"#eab308\"/>\n  <circle cx=\"28\" cy=\"73\" r=\"2.5\" fill=\"#eab308\"/>\n  <circle cx=\"28\" cy=\"78\" r=\"2.5\" fill=\"#eab308\"/>\n  <path d=\"M45,77 Q55,73 75,76\" stroke=\"#0f172a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n  <path d=\"M68,76 L75,72 L73,79 Z\" fill=\"#ffffff\" stroke=\"#0f172a\" stroke-width=\"1.5\"/>\n</svg>"
+  }},
+  {{
+    "id": "nami",
+    "name": "Nami",
+    "role": "Navegante",
+    "icon": "🍊",
+    "sound": "nami",
+    "color": "#ea580c",
+    "bgLight": "#fff7ed",
+    "border": "#fb923c",
+    "title": "¡¿PERO QUÉ HICISTE?! ¡NOS COSTARÁ MILLONES!",
+    "quotes": [
+      "¡¿Pero qué hiciste?! ¡Restaurar ese desastre nos va a costar 100 millones de Berries! ¡Y te cobraré un 200% de interés!",
+      "¡Clima-Tact: Tormenta de Errores! Con esa respuesta no cruzamos ni el Reverse Mountain.",
+      "¡Idiota! ¡Si cobrara un Berry por cada consulta mal redactada, ya le habría comprado la isla a Arlong!",
+      "¡Mira el mapa de privilegios! ¡Ese usuario tenía permisos de root y ni cuenta te diste!",
+      "¡¿Acaso no consultaste el Log Pose de la auditoría?! ¡Caíste directito en la trampa del examen!",
+      "¡Un buen navegante lee el clima y un buen auditor lee el log de errores! ¡Presta atención!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M22,60 Q18,22 60,20 Q102,22 98,60 Q96,95 86,95 Q90,70 82,50 Q60,35 38,50 Q30,70 34,95 Q24,95 22,60 Z\" fill=\"#ea580c\"/>\n  <ellipse cx=\"60\" cy=\"64\" rx=\"31\" ry=\"29\" fill=\"#ffedd5\"/>\n  <path d=\"M32,42 Q45,32 60,40 Q75,32 88,42\" fill=\"#f97316\"/>\n  <path d=\"M38,50 Q46,45 54,49\" stroke=\"#9a3412\" stroke-width=\"2.5\" fill=\"none\"/>\n  <path d=\"M66,49 Q74,45 82,50\" stroke=\"#9a3412\" stroke-width=\"2.5\" fill=\"none\"/>\n  <ellipse cx=\"46\" cy=\"57\" rx=\"6.5\" ry=\"8\" fill=\"#78350f\"/>\n  <circle cx=\"47\" cy=\"55\" r=\"2\" fill=\"#ffffff\"/>\n  <ellipse cx=\"74\" cy=\"57\" rx=\"6.5\" ry=\"8\" fill=\"#78350f\"/>\n  <circle cx=\"75\" cy=\"55\" r=\"2\" fill=\"#ffffff\"/>\n  <circle cx=\"36\" cy=\"66\" r=\"5\" fill=\"#fca5a5\" opacity=\"0.7\"/>\n  <circle cx=\"84\" cy=\"66\" r=\"5\" fill=\"#fca5a5\" opacity=\"0.7\"/>\n  <path d=\"M46,74 Q60,86 74,74\" stroke=\"#9a3412\" stroke-width=\"2.5\" fill=\"#dc2626\"/>\n  <circle cx=\"28\" cy=\"30\" r=\"11\" fill=\"#f97316\"/>\n  <circle cx=\"28\" cy=\"28\" r=\"9\" fill=\"#fbbf24\"/>\n  <path d=\"M28,19 Q33,14 36,17\" stroke=\"#15803d\" stroke-width=\"2\" fill=\"none\"/>\n</svg>"
+  }},
+  {{
+    "id": "usopp",
+    "name": "God Usopp",
+    "role": "Francotirador",
+    "icon": "🎯",
+    "sound": "usopp",
+    "color": "#d97706",
+    "bgLight": "#fffbeb",
+    "border": "#fcd34d",
+    "title": "¡AYUDAAAA! ¡ERROR NIVEL APOCALIPSIS!",
+    "quotes": [
+      "¡AYUDAAAA! ¡Me dio la legendaria 'Enfermedad de No Puedo Responder Preguntas de MySQL'!",
+      "¡Por los 8,000 hombres a mi mando! ¡Hasta con los ojos cerrados mi resortera apunta mejor a la clave primaria!",
+      "¡Hissatsu: Pachinko de Sintaxis Inválida! ¡Esa respuesta cayó a tres islas de distancia de la correcta!",
+      "¡Tranquilo nakama! ¡Le diré al profesor que fue un ciberataque de la Marina y que yo nos salvé a todos!",
+      "¡Sogeking! ¡En la Isla de los Francotiradores el 100% de los estudiantes se sabían esta pregunta!",
+      "¡Waaaaah! ¡Si el docente revisa ese log de transacciones estamos perdidos!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <ellipse cx=\"60\" cy=\"40\" rx=\"38\" ry=\"24\" fill=\"#451a03\"/>\n  <circle cx=\"30\" cy=\"50\" r=\"14\" fill=\"#451a03\"/>\n  <circle cx=\"90\" cy=\"50\" r=\"14\" fill=\"#451a03\"/>\n  <ellipse cx=\"60\" cy=\"65\" rx=\"31\" ry=\"29\" fill=\"#fed7aa\"/>\n  <rect x=\"36\" y=\"32\" width=\"48\" height=\"12\" rx=\"4\" fill=\"#78350f\"/>\n  <circle cx=\"46\" cy=\"38\" r=\"6\" fill=\"#fbbf24\" stroke=\"#d97706\" stroke-width=\"2\"/>\n  <circle cx=\"74\" cy=\"38\" r=\"6\" fill=\"#fbbf24\" stroke=\"#d97706\" stroke-width=\"2\"/>\n  <ellipse cx=\"46\" cy=\"56\" rx=\"7\" ry=\"8\" fill=\"#ffffff\" stroke=\"#18181b\" stroke-width=\"2\"/>\n  <ellipse cx=\"74\" cy=\"56\" rx=\"7\" ry=\"8\" fill=\"#ffffff\" stroke=\"#18181b\" stroke-width=\"2\"/>\n  <circle cx=\"46\" cy=\"56\" r=\"3\" fill=\"#18181b\"/>\n  <circle cx=\"74\" cy=\"56\" r=\"3\" fill=\"#18181b\"/>\n  <path d=\"M58,58 L92,62 A6,6 0 0,1 92,72 L58,70 Z\" fill=\"#fdba74\" stroke=\"#ea580c\" stroke-width=\"2\"/>\n  <ellipse cx=\"60\" cy=\"80\" rx=\"14\" ry=\"7\" fill=\"#991b1b\" stroke=\"#18181b\" stroke-width=\"2\"/>\n  <path d=\"M50,77 Q60,82 70,77\" fill=\"#ffffff\"/>\n</svg>"
+  }},
+  {{
+    "id": "sanji",
+    "name": "Sanji",
+    "role": "Cocinero",
+    "icon": "🍳",
+    "sound": "sanji",
+    "color": "#2563eb",
+    "bgLight": "#eff6ff",
+    "border": "#60a5fa",
+    "title": "¡ESA CONSULTA ESTÁ COMPLETAMENTE CRUDA!",
+    "quotes": [
+      "¡Maldita sea! ¡Serviste esa consulta tan cruda que todavía se mueve y hace DROP DATABASE en producción!",
+      "¡Diable Jamble: Flambage de Examen! ¡Ese fallo quemó el CPU del servidor! ¡Ni en el Baratie servimos semejante horror!",
+      "Un verdadero cocinero jamás desperdicia comida... ¡y un auditor jamás regala puntos con errores de novato!",
+      "¡Oye, cabeza de marimo! Digo... ¡estudiante! ¡Fíjate bien en la sintaxis antes de mandarla a la parrilla!",
+      "¡Si una señorita me pidiera auditar esa base de datos, jamás cometería semejante atrocidad!",
+      "Cocinar requiere paciencia y precisión; la seguridad lógica también. ¡Vuelve a pensarlo bien!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M25,50 Q22,18 60,18 Q98,18 95,50 Q85,75 75,70 Q60,40 35,65 Z\" fill=\"#facc15\"/>\n  <ellipse cx=\"60\" cy=\"65\" rx=\"31\" ry=\"29\" fill=\"#ffedd5\"/>\n  <path d=\"M30,35 Q60,25 90,45 Q70,75 55,75 Q40,40 30,35 Z\" fill=\"#eab308\"/>\n  <path d=\"M68,48 Q76,44 82,48 Q85,46 87,49\" stroke=\"#854d0e\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"74\" cy=\"56\" rx=\"6\" ry=\"6\" fill=\"#0284c7\"/>\n  <circle cx=\"75\" cy=\"55\" r=\"2\" fill=\"#ffffff\"/>\n  <path d=\"M52,73 Q60,78 72,74\" stroke=\"#854d0e\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"/>\n  <line x1=\"70\" y1=\"74\" x2=\"88\" y2=\"79\" stroke=\"#ffffff\" stroke-width=\"3.5\" stroke-linecap=\"round\"/>\n  <circle cx=\"89\" cy=\"79\" r=\"2\" fill=\"#ef4444\"/>\n  <path d=\"M90,77 Q94,70 91,65 Q95,60 93,55\" stroke=\"#94a3b8\" stroke-width=\"1.5\" fill=\"none\" opacity=\"0.7\"/>\n</svg>"
+  }},
+  {{
+    "id": "chopper",
+    "name": "Tony Tony Chopper",
+    "role": "Médico",
+    "icon": "🩺",
+    "sound": "chopper",
+    "color": "#ec4899",
+    "bgLight": "#fdf2f8",
+    "border": "#f472b6",
+    "title": "¡MÉDICO RÁPIDO! ¡SE DESMAYÓ LA BASE DE DATOS!",
+    "quotes": [
+      "¡MÉDICO! ¡UN MÉDICO RÁPIDO! ... ¡Ah, si el médico soy yo! ¡Pero esa respuesta le dio un paro cardíaco a la base de datos!",
+      "¡Rumble Ball: Error Point! ¡La integridad de las tablas está en estado sumamente crítico!",
+      "¡Que me digas que fallaste la respuesta no me alegra para nada, bastardo con suerte! *(baila feliz de los nervios)*",
+      "¡Te receto 500 mg de documentación oficial de MySQL 8.0 y reposo absoluto antes de tocar la terminal!",
+      "¡Waaaah! ¡El pulso de la transacción cayó a cero! ¡Traigan el desfibrilador de respaldos mysqldump!",
+      "¡Kureha me regañará si dejo que un alumno cometa semejante equivocación en los roles!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M24,34 Q14,24 16,14 Q22,14 26,22 Q32,12 36,18 Q32,28 32,34 Z\" fill=\"#78350f\"/>\n  <path d=\"M96,34 Q106,24 104,14 Q98,14 94,22 Q88,12 84,18 Q88,28 88,34 Z\" fill=\"#78350f\"/>\n  <ellipse cx=\"60\" cy=\"38\" rx=\"38\" ry=\"26\" fill=\"#ec4899\"/>\n  <ellipse cx=\"60\" cy=\"48\" rx=\"42\" ry=\"10\" fill=\"#db2777\"/>\n  <rect x=\"56\" y=\"24\" width=\"8\" height=\"22\" rx=\"2\" fill=\"#ffffff\"/>\n  <rect x=\"49\" y=\"31\" width=\"22\" height=\"8\" rx=\"2\" fill=\"#ffffff\"/>\n  <ellipse cx=\"60\" cy=\"74\" rx=\"28\" ry=\"24\" fill=\"#b45309\"/>\n  <ellipse cx=\"60\" cy=\"79\" rx=\"18\" ry=\"14\" fill=\"#fef3c7\"/>\n  <ellipse cx=\"46\" cy=\"68\" rx=\"6\" ry=\"8\" fill=\"#1e1b4b\"/>\n  <ellipse cx=\"74\" cy=\"68\" rx=\"6\" ry=\"8\" fill=\"#1e1b4b\"/>\n  <circle cx=\"48\" cy=\"66\" r=\"2.5\" fill=\"#ffffff\"/>\n  <circle cx=\"76\" cy=\"66\" r=\"2.5\" fill=\"#ffffff\"/>\n  <ellipse cx=\"60\" cy=\"75\" rx=\"5\" ry=\"3.5\" fill=\"#0284c7\"/>\n  <ellipse cx=\"36\" cy=\"76\" rx=\"5\" ry=\"3\" fill=\"#fda4af\"/>\n  <ellipse cx=\"84\" cy=\"76\" rx=\"5\" ry=\"3\" fill=\"#fda4af\"/>\n  <path d=\"M54,82 Q60,86 66,82\" stroke=\"#451a03\" stroke-width=\"2\" fill=\"none\"/>\n</svg>"
+  }},
+  {{
+    "id": "robin",
+    "name": "Nico Robin",
+    "role": "Arqueóloga",
+    "icon": "📚",
+    "sound": "robin",
+    "color": "#7c3aed",
+    "bgLight": "#f5f3ff",
+    "border": "#a78bfa",
+    "title": "FUFUFU... TUS DATOS HAN QUEDADO EXTINTOS",
+    "quotes": [
+      "Fascinante... Si ejecutas esa consulta en producción, los registros quedarán tan extintos como los Poneglyphs de Ohara.",
+      "Fufufu... Qué poético: un simple error de privilegios puede colapsar todo un imperio corporativo en segundos.",
+      "Mil Fleurs: Gigantesco Error. Parece que alguien no leyó los registros históricos de auditoría.",
+      "Fufufu... No te asustes, nakama. La muerte de tu calificación será rápida e indolora.",
+      "Se dice que aquellos que no conocen las directivas de seguridad están condenados a ver sus tablas en cenizas...",
+      "La verdad del siglo vacío de MySQL sigue oculta para quienes confunden GRANT con REVOKE."
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M26,55 Q20,20 60,18 Q100,20 94,55 Q92,90 85,92 Q78,50 60,35 Q42,50 35,92 Q28,90 26,55 Z\" fill=\"#18181b\"/>\n  <ellipse cx=\"60\" cy=\"65\" rx=\"30\" ry=\"28\" fill=\"#fed7aa\"/>\n  <path d=\"M38,32 Q60,26 82,32 L84,40 Q60,34 36,40 Z\" fill=\"#6d28d9\"/>\n  <ellipse cx=\"48\" cy=\"36\" rx=\"7\" ry=\"5\" fill=\"#1e1b4b\" stroke=\"#7c3aed\" stroke-width=\"1.5\"/>\n  <ellipse cx=\"72\" cy=\"36\" rx=\"7\" ry=\"5\" fill=\"#1e1b4b\" stroke=\"#7c3aed\" stroke-width=\"1.5\"/>\n  <path d=\"M40,51 Q48,47 54,51\" stroke=\"#312e81\" stroke-width=\"2.5\" fill=\"none\"/>\n  <path d=\"M66,51 Q72,47 80,51\" stroke=\"#312e81\" stroke-width=\"2.5\" fill=\"none\"/>\n  <ellipse cx=\"47\" cy=\"58\" rx=\"6\" ry=\"7\" fill=\"#0284c7\"/>\n  <circle cx=\"48\" cy=\"56\" r=\"2\" fill=\"#ffffff\"/>\n  <ellipse cx=\"73\" cy=\"58\" rx=\"6\" ry=\"7\" fill=\"#0284c7\"/>\n  <circle cx=\"74\" cy=\"56\" r=\"2\" fill=\"#ffffff\"/>\n  <path d=\"M52,74 Q60,78 68,74\" stroke=\"#831843\" stroke-width=\"2\" fill=\"none\"/>\n  <circle cx=\"28\" cy=\"72\" r=\"5\" fill=\"#f472b6\" opacity=\"0.8\"/>\n  <circle cx=\"92\" cy=\"72\" r=\"5\" fill=\"#f472b6\" opacity=\"0.8\"/>\n</svg>"
+  }},
+  {{
+    "id": "franky",
+    "name": "Franky",
+    "role": "Carpintero Naval",
+    "icon": "🦾",
+    "sound": "franky",
+    "color": "#06b6d4",
+    "bgLight": "#ecfeff",
+    "border": "#22d3ee",
+    "title": "¡SUUUUUPER... MAL! ¡CERO ESTILO NAKAMA!",
+    "quotes": [
+      "¡SUUUUUPER... MAL! ¡Esa consulta no tiene nada de blindaje ni de carpintería naval de calidad!",
+      "¡Coup de Vent! ¡El impacto de esa respuesta desarmó por completo el motor de almacenamiento del servidor!",
+      "¡¿Quién construyó esa sentencia?! ¡No resiste ni la presión de una botella de cola vacía! ¡Hay que meterle blindaje SUUUUPER!",
+      "¡Franky Shogun desaprobado! ¡Esa respuesta necesita reparaciones estructurales urgentes en el dique seco!",
+      "¡Esta semana no me siento nada SUUUUPER con ese fallo! ¡Échale más cola al combustible mental!",
+      "¡Un verdadero hombre defiende su barco y sus privilegios con cifrado TLS robusto!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M38,36 Q34,10 60,8 Q86,10 82,36 Z\" fill=\"#06b6d4\"/>\n  <path d=\"M42,28 Q60,18 78,28 L74,38 Q60,30 46,38 Z\" fill=\"#0891b2\"/>\n  <ellipse cx=\"60\" cy=\"68\" rx=\"33\" ry=\"30\" fill=\"#fed7aa\"/>\n  <path d=\"M32,46 L58,48 L56,58 L34,56 Z\" fill=\"#0f172a\"/>\n  <path d=\"M88,46 L62,48 L64,58 L86,56 Z\" fill=\"#0f172a\"/>\n  <line x1=\"58\" y1=\"50\" x2=\"62\" y2=\"50\" stroke=\"#0f172a\" stroke-width=\"3\"/>\n  <polygon points=\"56,60 64,60 60,70\" fill=\"#94a3b8\" stroke=\"#475569\" stroke-width=\"1.5\"/>\n  <path d=\"M40,78 Q60,94 80,78 Z\" fill=\"#991b1b\" stroke=\"#0f172a\" stroke-width=\"2\"/>\n  <path d=\"M44,80 Q60,88 76,80 Z\" fill=\"#ffffff\"/>\n  <path d=\"M22,66 L28,62 L32,68 L26,72 Z\" fill=\"#38bdf8\"/>\n  <path d=\"M98,66 L92,62 L88,68 L94,72 Z\" fill=\"#38bdf8\"/>\n  <polygon points=\"60,96 63,102 69,103 64,107 66,113 60,109 54,113 56,107 51,103 57,102\" fill=\"#0284c7\"/>\n</svg>"
+  }},
+  {{
+    "id": "brook",
+    "name": "Brook",
+    "role": "Músico",
+    "icon": "💀",
+    "sound": "brook",
+    "color": "#475569",
+    "bgLight": "#f8fafc",
+    "border": "#94a3b8",
+    "title": "¡YOHOHOHO! ¡CASI ME DA UN ATAQUE AL CORAZÓN!",
+    "quotes": [
+      "¡YOHOHOHO! ¡Casi me da un ataque al corazón al ver esa opción!... Aunque yo ya estoy muerto, ¡yohohoho! ¡Skull Joke!",
+      "¡Mis ojos no dan crédito a semejante fallo!... ¡Aunque yo no tengo ojos! ¡YOHOHOHO!",
+      "Binks no Sake sonaría tristísimo si se pierden las tablas por esa sentencia. ¡Toquemos un réquiem por esos datos!",
+      "¡Soul Solid! Se me congelaron los huesos al ver cómo dejaste desprotegido ese host de conexión... ¡Y eso que solo soy huesos!",
+      "¡Yohohoho! Me dolería el estómago de la risa por esa respuesta... ¡si tan solo tuviera estómago!",
+      "Una partitura sin notas no es música, ¡y un usuario sin contraseña es un suicidio de seguridad!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <circle cx=\"60\" cy=\"54\" r=\"44\" fill=\"#09090b\"/>\n  <ellipse cx=\"60\" cy=\"24\" rx=\"28\" ry=\"8\" fill=\"#18181b\"/>\n  <rect x=\"42\" y=\"6\" width=\"36\" height=\"20\" rx=\"3\" fill=\"#18181b\"/>\n  <rect x=\"42\" y=\"20\" width=\"36\" height=\"4\" fill=\"#e11d48\"/>\n  <ellipse cx=\"60\" cy=\"68\" rx=\"26\" ry=\"28\" fill=\"#f8fafc\" stroke=\"#cbd5e1\" stroke-width=\"2\"/>\n  <ellipse cx=\"48\" cy=\"60\" rx=\"8\" ry=\"10\" fill=\"#09090b\"/>\n  <ellipse cx=\"72\" cy=\"60\" rx=\"8\" ry=\"10\" fill=\"#09090b\"/>\n  <polygon points=\"60,68 57,74 63,74\" fill=\"#09090b\"/>\n  <path d=\"M42,78 Q60,88 78,78 Q60,94 42,78 Z\" fill=\"#09090b\"/>\n  <line x1=\"48\" y1=\"80\" x2=\"48\" y2=\"86\" stroke=\"#f8fafc\" stroke-width=\"2\"/>\n  <line x1=\"54\" y1=\"80\" x2=\"54\" y2=\"87\" stroke=\"#f8fafc\" stroke-width=\"2\"/>\n  <line x1=\"60\" y1=\"80\" x2=\"60\" y2=\"88\" stroke=\"#f8fafc\" stroke-width=\"2\"/>\n  <line x1=\"66\" y1=\"80\" x2=\"66\" y2=\"87\" stroke=\"#f8fafc\" stroke-width=\"2\"/>\n  <line x1=\"72\" y1=\"80\" x2=\"72\" y2=\"80\" stroke=\"#f8fafc\" stroke-width=\"2\"/>\n  <path d=\"M38,50 L46,54\" stroke=\"#cbd5e1\" stroke-width=\"2\"/>\n</svg>"
+  }},
+  {{
+    "id": "jinbe",
+    "name": "Jinbe",
+    "role": "Timonel",
+    "icon": "🥋",
+    "sound": "jinbe",
+    "color": "#0284c7",
+    "bgLight": "#f0f9ff",
+    "border": "#38bdf8",
+    "title": "¡MANTÉN LA CALMA Y EL TIMÓN FIRME!",
+    "quotes": [
+      "¡Gyojin Karate: Onda Marina! Mantén la calma y el honor, nakama. Un verdadero timonel nunca pierde el rumbo por un fallo.",
+      "Dejaste el timón suelto en medio de una tormenta de inyecciones SQL. ¡Corrige la dirección de inmediato!",
+      "La experiencia en el mar enseña que un privilegio mal otorgado es como una vía de agua en el casco del barco.",
+      "No pierdas la concentración, joven pirata. La disciplina en la auditoría salvará a tu tripulación.",
+      "Aceptar el error es el primer paso para dominar las corrientes más turbulentas de MySQL.",
+      "¡Ni la Marina ni los piratas más despiadados vulnerarán tus datos si mantienes tus políticas firmes!"
+    ],
+    "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M20,50 Q16,14 60,14 Q104,14 100,50 Q96,80 88,86 Q60,60 32,86 Q24,80 20,50 Z\" fill=\"#0f172a\"/>\n  <ellipse cx=\"60\" cy=\"65\" rx=\"36\" ry=\"32\" fill=\"#38bdf8\"/>\n  <path d=\"M32,46 Q40,36 48,42 Q52,38 56,44\" stroke=\"#ffffff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n  <path d=\"M88,46 Q80,36 72,42 Q68,38 64,44\" stroke=\"#ffffff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"44\" cy=\"54\" rx=\"4\" ry=\"4\" fill=\"#0f172a\"/>\n  <circle cx=\"45\" cy=\"53\" r=\"1.5\" fill=\"#ffffff\"/>\n  <ellipse cx=\"76\" cy=\"54\" rx=\"4\" ry=\"4\" fill=\"#0f172a\"/>\n  <circle cx=\"77\" cy=\"53\" r=\"1.5\" fill=\"#ffffff\"/>\n  <ellipse cx=\"60\" cy=\"58\" rx=\"8\" ry=\"4\" fill=\"#0284c7\"/>\n  <path d=\"M40,74 Q60,84 80,74\" stroke=\"#0f172a\" stroke-width=\"3\" fill=\"none\"/>\n  <polygon points=\"46,74 50,66 54,75\" fill=\"#ffffff\" stroke=\"#0f172a\" stroke-width=\"1.5\"/>\n  <polygon points=\"66,75 70,66 74,74\" fill=\"#ffffff\" stroke=\"#0f172a\" stroke-width=\"1.5\"/>\n  <circle cx=\"60\" cy=\"88\" r=\"8\" fill=\"#dc2626\"/>\n  <circle cx=\"60\" cy=\"88\" r=\"4\" fill=\"#38bdf8\"/>\n</svg>"
+  }}
+];
+  let lastCrewIndex = -1;
 
   // ADVERTENCIA AL INTENTAR SALIR O RECARGAR
   window.addEventListener("beforeunload", function (e) {{
@@ -876,6 +1079,7 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
         osc.start(now);
         osc.stop(now + 0.35);
       }} else if (type === 'luffy') {{
+        // Bouncing laugh / Gear 5
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(340, now);
         osc.frequency.exponentialRampToValueAtTime(110, now + 0.35);
@@ -883,6 +1087,91 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
         osc.start(now);
         osc.stop(now + 0.38);
+      }} else if (type === 'zoro') {{
+        // Sharp sword slash
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(820, now);
+        osc.frequency.exponentialRampToValueAtTime(90, now + 0.25);
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.start(now);
+        osc.stop(now + 0.28);
+      }} else if (type === 'nami') {{
+        // Berries money chime
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, now);
+        osc.frequency.setValueAtTime(1318.51, now + 0.09);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.start(now);
+        osc.stop(now + 0.38);
+      }} else if (type === 'usopp') {{
+        // Slingshot boing
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(640, now + 0.18);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+        osc.start(now);
+        osc.stop(now + 0.32);
+      }} else if (type === 'sanji') {{
+        // Diable jamble fire sizzle
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.linearRampToValueAtTime(130, now + 0.28);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      }} else if (type === 'chopper') {{
+        // Cute panic squeak
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(580, now);
+        osc.frequency.linearRampToValueAtTime(880, now + 0.12);
+        osc.frequency.linearRampToValueAtTime(440, now + 0.28);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      }} else if (type === 'robin') {{
+        // Flower bloom mystery chime
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(554.37, now + 0.1);
+        osc.frequency.setValueAtTime(659.25, now + 0.2);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+        osc.start(now);
+        osc.stop(now + 0.42);
+      }} else if (type === 'franky') {{
+        // SUUUUPER brass blast
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.setValueAtTime(330, now + 0.08);
+        osc.frequency.setValueAtTime(440, now + 0.16);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+        osc.start(now);
+        osc.stop(now + 0.42);
+      }} else if (type === 'brook') {{
+        // Yohoho violin skull pluck
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.linearRampToValueAtTime(220, now + 0.14);
+        osc.frequency.linearRampToValueAtTime(330, now + 0.28);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.start(now);
+        osc.stop(now + 0.38);
+      }} else if (type === 'jinbe') {{
+        // Deep gyojin wave gong
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.38);
+        gain.gain.setValueAtTime(0.24, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+        osc.start(now);
+        osc.stop(now + 0.42);
       }}
     }} catch (e) {{}}
   }}
@@ -1080,11 +1369,41 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
         if (letra === q.correcta) b.classList.add("correct-choice");
       }});
 
-      playSound("luffy");
+      // Rotar personaje de la tripulación de los Sombrero de Paja
+      let crewIdx;
+      do {{
+        crewIdx = Math.floor(Math.random() * MUGIWARA_CREW.length);
+      }} while (crewIdx === lastCrewIndex && MUGIWARA_CREW.length > 1);
+      lastCrewIndex = crewIdx;
 
-      const randomQuote = FRASES_LUFFY[Math.floor(Math.random() * FRASES_LUFFY.length)];
-      document.getElementById("luffy-quote").innerText = `"${{randomQuote}}"`;
-      document.getElementById("luffy-correct-note").innerHTML = `La respuesta correcta era la opción <b style="color: var(--success); font-size: 1.1rem;">${{q.correcta}}</b>.`;
+      const char = MUGIWARA_CREW[crewIdx];
+      const randomQuote = char.quotes[Math.floor(Math.random() * char.quotes.length)];
+
+      playSound(char.sound);
+
+      // Personalizar modal con el personaje actual
+      const tagEl = document.getElementById("crew-tag");
+      tagEl.innerHTML = `${{char.icon}} ${{char.name}} — ${{char.role}}`;
+      tagEl.style.color = char.color;
+      tagEl.style.background = char.bgLight;
+      tagEl.style.border = `1px solid ${{char.border}}`;
+
+      document.getElementById("crew-avatar-box").innerHTML = char.svg;
+
+      const titleEl = document.getElementById("crew-title");
+      titleEl.style.color = char.color;
+      titleEl.innerHTML = `<span>${{char.icon}}</span> <span>${{char.title}}</span>`;
+
+      const bubbleEl = document.getElementById("luffy-quote");
+      bubbleEl.innerText = `"${{randomQuote}}"`;
+      bubbleEl.style.background = char.bgLight;
+      bubbleEl.style.border = `2px dashed ${{char.border}}`;
+      bubbleEl.style.color = char.color;
+
+      document.getElementById("luffy-correct-note").innerHTML = `La respuesta correcta era la opción <b style="color: var(--success); font-size: 1.15rem;">${{q.correcta}}</b>.`;
+
+      const btnEl = document.getElementById("crew-modal-btn");
+      btnEl.style.background = `linear-gradient(135deg, ${{char.color}} 0%, #111827 140%)`;
 
       setTimeout(() => {{
         document.getElementById("luffy-modal").style.display = "flex";

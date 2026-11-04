@@ -14,7 +14,7 @@ Diseñada para permitir que un grupo completo de estudiantes realice su examen o
 * **Diseño Neumórfico (Soft UI):** Estética visual moderna basada en superficies extruidas 3D, sombras suaves y componentes táctiles.
 * **Retroalimentación Interactiva:**
   * 🎉 **Acierto:** Lluvia de confeti verde esmeralda y arpegio sonoro ascendente.
-  * 👒 **Fallo:** Animación de temblor cómica y aparición de **Luffy (One Piece)** con frases aleatorias cómicas, indicando la opción correcta para fines pedagógicos.
+  * 🏴‍☠️ **Fallo:** Animación de temblor cómica y aparición en modal rotativo de los **10 miembros de la tripulación de los Sombrero de Paja (Mugiwara Crew: Luffy, Zoro, Nami, Usopp, Sanji, Chopper, Robin, Franky, Brook y Jinbe)**, cada uno con su avatar SVG exclusivo, efectos sonoros sintetizados y más de 65 frases cómicas alusivas a One Piece y a los errores de auditoría SQL, indicando siempre la opción correcta con fines pedagógicos.
 * **Protección Anti-F5 (Auto-Reanudación):** Si el alumno recarga la página o se desconecta, el sistema restaura su examen exactamente en la pregunta donde iba, manteniendo bloqueadas las anteriores.
 * **Bloqueo de Reintentos:** Una vez finalizado el examen, el carné queda bloqueado en el servidor para evitar que el estudiante repita la prueba.
 

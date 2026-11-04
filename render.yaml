@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: evaluacion-seguridad-sql
+    runtime: python
+    buildCommand: ""
+    startCommand: "python servidor_evaluacion.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0

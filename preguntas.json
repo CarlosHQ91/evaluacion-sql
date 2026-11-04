@@ -1,0 +1,722 @@
+[
+  {
+    "id": 1,
+    "seccion": "SECCIÓN 1: Conceptos Fundamentales de Seguridad Lógica en Bases de Datos",
+    "enunciado": "¿Cuál de los siguientes conceptos se refiere a \"verificar que quien intenta acceder al sistema es realmente quien dice ser\"?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Autorización"
+      },
+      {
+        "letra": "B",
+        "texto": "Autenticación"
+      },
+      {
+        "letra": "C",
+        "texto": "Cifrado"
+      },
+      {
+        "letra": "D",
+        "texto": "Auditoría"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 2,
+    "seccion": "SECCIÓN 1: Conceptos Fundamentales de Seguridad Lógica en Bases de Datos",
+    "enunciado": "¿Qué principio de seguridad establece que cada usuario debe tener únicamente los permisos estrictamente necesarios para realizar su trabajo y nada más?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Principio de no repudio"
+      },
+      {
+        "letra": "B",
+        "texto": "Principio de disponibilidad máxima"
+      },
+      {
+        "letra": "C",
+        "texto": "Principio de mínimo privilegio"
+      },
+      {
+        "letra": "D",
+        "texto": "Principio de redundancia"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 3,
+    "seccion": "SECCIÓN 1: Conceptos Fundamentales de Seguridad Lógica en Bases de Datos",
+    "enunciado": "¿Cuál de las siguientes amenazas consiste en insertar código SQL malicioso dentro de un campo de entrada para manipular las consultas de la base de datos?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Fuerza bruta"
+      },
+      {
+        "letra": "B",
+        "texto": "Escalamiento de privilegios"
+      },
+      {
+        "letra": "C",
+        "texto": "Inyección SQL"
+      },
+      {
+        "letra": "D",
+        "texto": "Sniffing"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 4,
+    "seccion": "SECCIÓN 2: Conexión y Reconocimiento del Entorno MySQL",
+    "enunciado": "¿Cuál es el comando correcto para conectarse a MySQL desde la línea de comandos utilizando el usuario \"root\" con contraseña?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "mysql --connect root -pass"
+      },
+      {
+        "letra": "B",
+        "texto": "mysql -u root -p"
+      },
+      {
+        "letra": "C",
+        "texto": "connect mysql root password"
+      },
+      {
+        "letra": "D",
+        "texto": "login mysql -user root"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 5,
+    "seccion": "SECCIÓN 2: Conexión y Reconocimiento del Entorno MySQL",
+    "enunciado": "¿Qué consulta SQL permite conocer la versión del servidor MySQL al que estás conectado?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "SHOW SERVER VERSION;"
+      },
+      {
+        "letra": "B",
+        "texto": "GET VERSION();"
+      },
+      {
+        "letra": "C",
+        "texto": "SELECT VERSION();"
+      },
+      {
+        "letra": "D",
+        "texto": "DISPLAY VERSION;"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 6,
+    "seccion": "SECCIÓN 2: Conexión y Reconocimiento del Entorno MySQL",
+    "enunciado": "¿Por qué es relevante para un auditor conocer la versión de MySQL instalada en la organización?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Para calcular el costo de la licencia del software."
+      },
+      {
+        "letra": "B",
+        "texto": "Para identificar vulnerabilidades conocidas y verificar si existen parches de seguridad pendientes."
+      },
+      {
+        "letra": "C",
+        "texto": "Para saber cuántos usuarios pueden conectarse simultáneamente."
+      },
+      {
+        "letra": "D",
+        "texto": "Para determinar el espacio en disco que ocupa el motor de base de datos."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 7,
+    "seccion": "SECCIÓN 3: Bases de Datos del Sistema y Comandos Básicos",
+    "enunciado": "¿Cuál de los siguientes comandos muestra TODAS las bases de datos existentes en un servidor MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "LIST DATABASES;"
+      },
+      {
+        "letra": "B",
+        "texto": "SELECT * FROM databases;"
+      },
+      {
+        "letra": "C",
+        "texto": "SHOW DATABASES;"
+      },
+      {
+        "letra": "D",
+        "texto": "DISPLAY ALL SCHEMAS;"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 8,
+    "seccion": "SECCIÓN 3: Bases de Datos del Sistema y Comandos Básicos",
+    "enunciado": "¿Cuál de las siguientes bases de datos del sistema en MySQL almacena las cuentas de usuario, privilegios y configuración de seguridad del servidor?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "information_schema"
+      },
+      {
+        "letra": "B",
+        "texto": "performance_schema"
+      },
+      {
+        "letra": "C",
+        "texto": "sys"
+      },
+      {
+        "letra": "D",
+        "texto": "mysql"
+      }
+    ],
+    "correcta": "D"
+  },
+  {
+    "id": 9,
+    "seccion": "SECCIÓN 4: Revisión de Cuentas de Usuario",
+    "enunciado": "¿En qué tabla del sistema MySQL se almacenan las cuentas de usuario, sus hosts y atributos de seguridad?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "information_schema.USER_PRIVILEGES"
+      },
+      {
+        "letra": "B",
+        "texto": "mysql.user"
+      },
+      {
+        "letra": "C",
+        "texto": "sys.user_accounts"
+      },
+      {
+        "letra": "D",
+        "texto": "performance_schema.users"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 10,
+    "seccion": "SECCIÓN 4: Revisión de Cuentas de Usuario",
+    "enunciado": "¿Cuál de las siguientes consultas permite identificar si existen cuentas ANÓNIMAS (sin nombre de usuario) en MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "SELECT User FROM mysql.user WHERE User = 'anonymous';"
+      },
+      {
+        "letra": "B",
+        "texto": "SELECT User, Host FROM mysql.user WHERE User = '';"
+      },
+      {
+        "letra": "C",
+        "texto": "SHOW ANONYMOUS USERS;"
+      },
+      {
+        "letra": "D",
+        "texto": "SELECT * FROM mysql.accounts WHERE type = 'anon';"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 11,
+    "seccion": "SECCIÓN 4: Revisión de Cuentas de Usuario",
+    "enunciado": "¿Cuál de los siguientes valores en el campo Host de una cuenta MySQL representa el MAYOR riesgo de seguridad?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "'localhost'"
+      },
+      {
+        "letra": "B",
+        "texto": "'192.168.1.10'"
+      },
+      {
+        "letra": "C",
+        "texto": "'%'"
+      },
+      {
+        "letra": "D",
+        "texto": "'127.0.0.1'"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 12,
+    "seccion": "SECCIÓN 5: Base de Datos de Práctica — empresa_auditoria",
+    "enunciado": "¿Cuál de los siguientes comandos permite seleccionar y activar la base de datos \"empresa_auditoria\" para trabajar en ella?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "SELECT DATABASE empresa_auditoria;"
+      },
+      {
+        "letra": "B",
+        "texto": "OPEN empresa_auditoria;"
+      },
+      {
+        "letra": "C",
+        "texto": "USE empresa_auditoria;"
+      },
+      {
+        "letra": "D",
+        "texto": "CONNECT TO empresa_auditoria;"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 13,
+    "seccion": "SECCIÓN 5: Base de Datos de Práctica — empresa_auditoria",
+    "enunciado": "En la tabla \"empleados\" de empresa_auditoria, ¿cuál de los siguientes campos es considerado un dato SENSIBLE desde el punto de vista de privacidad y auditoría?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "cargo"
+      },
+      {
+        "letra": "B",
+        "texto": "fecha_contratacion"
+      },
+      {
+        "letra": "C",
+        "texto": "dui"
+      },
+      {
+        "letra": "D",
+        "texto": "id_departamento"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 14,
+    "seccion": "SECCIÓN 5: Base de Datos de Práctica — empresa_auditoria",
+    "enunciado": "Observa la siguiente consulta:\n\nSELECT e.primer_nombre, e.apellido, d.nombre AS departamento, s.salario_base\nFROM empleados e\nJOIN departamentos d ON e.id_departamento = d.id_departamento\nJOIN salarios s ON e.id_empleado = s.id_empleado;\n\n¿Por qué un auditor considera que esta consulta presenta un riesgo de seguridad si no se controla su acceso?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Porque la consulta puede eliminar datos accidentalmente."
+      },
+      {
+        "letra": "B",
+        "texto": "Porque expone información confidencial como salarios a usuarios que no deberían verla."
+      },
+      {
+        "letra": "C",
+        "texto": "Porque ralentiza el servidor y afecta la disponibilidad."
+      },
+      {
+        "letra": "D",
+        "texto": "Porque genera automáticamente registros en el log de errores."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 15,
+    "seccion": "SECCIÓN 6: Creación de Usuarios y Asignación de Privilegios",
+    "enunciado": "¿Cuál de los siguientes comandos crea correctamente el usuario 'auditor'@'localhost' con contraseña?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ADD USER 'auditor'@'localhost' PASSWORD 'Aud_2024!';"
+      },
+      {
+        "letra": "B",
+        "texto": "CREATE USER 'auditor'@'localhost' IDENTIFIED BY 'Aud_2024!';"
+      },
+      {
+        "letra": "C",
+        "texto": "INSERT USER 'auditor' AT 'localhost' WITH PASSWORD 'Aud_2024!';"
+      },
+      {
+        "letra": "D",
+        "texto": "NEW USER 'auditor'@'localhost' PASS 'Aud_2024!';"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 16,
+    "seccion": "SECCIÓN 6: Creación de Usuarios y Asignación de Privilegios",
+    "enunciado": "¿Qué comando SQL otorga al usuario 'auditor'@'localhost' permiso de SOLO LECTURA sobre todas las tablas de empresa_auditoria?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "GIVE SELECT ON empresa_auditoria.* TO 'auditor'@'localhost';"
+      },
+      {
+        "letra": "B",
+        "texto": "ALLOW READ ON empresa_auditoria.* FOR 'auditor'@'localhost';"
+      },
+      {
+        "letra": "C",
+        "texto": "GRANT SELECT ON empresa_auditoria.* TO 'auditor'@'localhost';"
+      },
+      {
+        "letra": "D",
+        "texto": "PERMIT SELECT ON empresa_auditoria.* TO 'auditor'@'localhost';"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 17,
+    "seccion": "SECCIÓN 6: Creación de Usuarios y Asignación de Privilegios",
+    "enunciado": "¿Cuál es el comando correcto para RETIRAR (revocar) el privilegio INSERT al usuario 'operador'@'%' sobre la tabla empleados?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "REMOVE INSERT ON empresa_auditoria.empleados FROM 'operador'@'%';"
+      },
+      {
+        "letra": "B",
+        "texto": "DELETE GRANT INSERT ON empresa_auditoria.empleados FOR 'operador'@'%';"
+      },
+      {
+        "letra": "C",
+        "texto": "REVOKE INSERT ON empresa_auditoria.empleados FROM 'operador'@'%';"
+      },
+      {
+        "letra": "D",
+        "texto": "DROP PRIVILEGE INSERT ON empresa_auditoria.empleados TO 'operador'@'%';"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 18,
+    "seccion": "SECCIÓN 7: Uso de Roles en MySQL",
+    "enunciado": "¿Cuál de las siguientes afirmaciones describe CORRECTAMENTE el concepto de ROL en MySQL 8.0?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Un rol es un tipo especial de tabla que almacena contraseñas de usuarios."
+      },
+      {
+        "letra": "B",
+        "texto": "Un rol es un conjunto de privilegios que puede asignarse a uno o varios usuarios."
+      },
+      {
+        "letra": "C",
+        "texto": "Un rol es una conexión cifrada entre el cliente y el servidor."
+      },
+      {
+        "letra": "D",
+        "texto": "Un rol es un proceso automático que registra las consultas ejecutadas."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 19,
+    "seccion": "SECCIÓN 7: Uso de Roles en MySQL",
+    "enunciado": "¿Cuál es el comando correcto para CREAR un rol llamado 'rol_consulta' en MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ADD ROLE 'rol_consulta';"
+      },
+      {
+        "letra": "B",
+        "texto": "CREATE ROLE 'rol_consulta';"
+      },
+      {
+        "letra": "C",
+        "texto": "NEW ROLE rol_consulta;"
+      },
+      {
+        "letra": "D",
+        "texto": "INSERT ROLE 'rol_consulta' INTO mysql.roles;"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 20,
+    "seccion": "SECCIÓN 7: Uso de Roles en MySQL",
+    "enunciado": "¿Cuál es la PRINCIPAL ventaja de usar roles para administrar privilegios en MySQL frente a asignar privilegios directamente a cada usuario?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Los roles permiten conectarse al servidor sin contraseña."
+      },
+      {
+        "letra": "B",
+        "texto": "Los roles facilitan la administración: al modificar el rol, el cambio aplica a todos los usuarios que lo tienen asignado."
+      },
+      {
+        "letra": "C",
+        "texto": "Los roles aumentan el rendimiento de las consultas SQL."
+      },
+      {
+        "letra": "D",
+        "texto": "Los roles eliminan la necesidad de hacer respaldos de la base de datos."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 21,
+    "seccion": "SECCIÓN 8: Contraseñas y Políticas de Seguridad",
+    "enunciado": "¿Cuál de las siguientes contraseñas es la MÁS SEGURA según las buenas prácticas de auditoría?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "password"
+      },
+      {
+        "letra": "B",
+        "texto": "12345678"
+      },
+      {
+        "letra": "C",
+        "texto": "Aud1t0r_2024!"
+      },
+      {
+        "letra": "D",
+        "texto": "auditor"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 22,
+    "seccion": "SECCIÓN 8: Contraseñas y Políticas de Seguridad",
+    "enunciado": "¿Cuál de los siguientes comandos configura la cuenta de un usuario para que su contraseña EXPIRE en 90 días?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "SET PASSWORD EXPIRE 90 FOR 'auditor'@'localhost';"
+      },
+      {
+        "letra": "B",
+        "texto": "UPDATE mysql.user SET expire=90 WHERE User='auditor';"
+      },
+      {
+        "letra": "C",
+        "texto": "ALTER USER 'auditor'@'localhost' PASSWORD EXPIRE INTERVAL 90 DAY;"
+      },
+      {
+        "letra": "D",
+        "texto": "MODIFY USER 'auditor'@'localhost' EXPIRE 90;"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 23,
+    "seccion": "SECCIÓN 9: Cifrado de la Conexión (TLS/SSL)",
+    "enunciado": "¿Qué protege el cifrado TLS/SSL en las conexiones de una base de datos MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Los datos almacenados en disco dentro de la base de datos."
+      },
+      {
+        "letra": "B",
+        "texto": "Los datos que viajan entre el cliente y el servidor MySQL, protegiéndolos de interceptación."
+      },
+      {
+        "letra": "C",
+        "texto": "Las contraseñas almacenadas en la tabla mysql.user."
+      },
+      {
+        "letra": "D",
+        "texto": "El acceso físico al servidor donde corre MySQL."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 24,
+    "seccion": "SECCIÓN 9: Cifrado de la Conexión (TLS/SSL)",
+    "enunciado": "¿Qué indica que el campo 'Ssl_cipher' aparece VACÍO al ejecutar SHOW SESSION STATUS LIKE 'Ssl_cipher'?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Que el cifrado SSL está activo y funcionando correctamente."
+      },
+      {
+        "letra": "B",
+        "texto": "Que la conexión actual NO está cifrada (no se usa SSL/TLS)."
+      },
+      {
+        "letra": "C",
+        "texto": "Que el usuario no tiene privilegios suficientes para verificar el cifrado."
+      },
+      {
+        "letra": "D",
+        "texto": "Que la versión de MySQL no soporta SSL."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 25,
+    "seccion": "SECCIÓN 10: Registros (Logs) para Auditoría",
+    "enunciado": "¿Cuál de los siguientes tipos de registro de MySQL guarda TODAS las consultas ejecutadas en el servidor, independientemente del usuario?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Error log (registro de errores)"
+      },
+      {
+        "letra": "B",
+        "texto": "Binary log (registro binario)"
+      },
+      {
+        "letra": "C",
+        "texto": "General query log (registro general de consultas)"
+      },
+      {
+        "letra": "D",
+        "texto": "Slow query log (registro de consultas lentas)"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 26,
+    "seccion": "SECCIÓN 10: Registros (Logs) para Auditoría",
+    "enunciado": "¿Cuál de los siguientes comandos activa el registro general de consultas (general_log) en MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ENABLE LOG GENERAL;"
+      },
+      {
+        "letra": "B",
+        "texto": "SET GLOBAL general_log = 'ON';"
+      },
+      {
+        "letra": "C",
+        "texto": "START LOGGING QUERIES;"
+      },
+      {
+        "letra": "D",
+        "texto": "ALTER SERVER SET general_log = TRUE;"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 27,
+    "seccion": "SECCIÓN 10: Registros (Logs) para Auditoría",
+    "enunciado": "¿Cuál de los siguientes tipos de log de MySQL es el más útil para recuperar datos ante una falla, ya que registra todos los cambios realizados sobre la información?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Error log"
+      },
+      {
+        "letra": "B",
+        "texto": "General query log"
+      },
+      {
+        "letra": "C",
+        "texto": "Binary log"
+      },
+      {
+        "letra": "D",
+        "texto": "Slow query log"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 28,
+    "seccion": "SECCIÓN 11: Respaldo, Restauración y Limpieza del Entorno",
+    "enunciado": "¿Cuál de los siguientes comandos genera un respaldo lógico (dump) de la base de datos empresa_auditoria usando mysqldump?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "backup -u root empresa_auditoria > respaldo.sql"
+      },
+      {
+        "letra": "B",
+        "texto": "mysqldump -u root -p empresa_auditoria > respaldo.sql"
+      },
+      {
+        "letra": "C",
+        "texto": "export empresa_auditoria TO respaldo.sql"
+      },
+      {
+        "letra": "D",
+        "texto": "mysqlbackup empresa_auditoria respaldo.sql"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 29,
+    "seccion": "SECCIÓN 11: Respaldo, Restauración y Limpieza del Entorno",
+    "enunciado": "¿Por qué un auditor considera que \"un respaldo que nunca ha sido restaurado no ofrece garantía de recuperabilidad\"?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Porque sin restaurar, el archivo puede estar incompleto o dañado y no se sabría hasta el momento de necesitarlo."
+      },
+      {
+        "letra": "B",
+        "texto": "Porque los archivos de respaldo caducan después de 30 días sin ser restaurados."
+      },
+      {
+        "letra": "C",
+        "texto": "Porque MySQL elimina automáticamente respaldos que no se restauran."
+      },
+      {
+        "letra": "D",
+        "texto": "Porque la restauración es el único proceso que genera un nuevo respaldo actualizado."
+      }
+    ],
+    "correcta": "A"
+  },
+  {
+    "id": 30,
+    "seccion": "SECCIÓN 11: Respaldo, Restauración y Limpieza del Entorno",
+    "enunciado": "¿Cuál de los siguientes comandos elimina correctamente al usuario 'auditor'@'localhost' de MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "DELETE USER 'auditor'@'localhost';"
+      },
+      {
+        "letra": "B",
+        "texto": "REMOVE USER 'auditor'@'localhost';"
+      },
+      {
+        "letra": "C",
+        "texto": "DROP USER 'auditor'@'localhost';"
+      },
+      {
+        "letra": "D",
+        "texto": "KILL USER 'auditor'@'localhost';"
+      }
+    ],
+    "correcta": "C"
+  }
+]

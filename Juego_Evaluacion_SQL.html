@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Audit Quest — Evaluación Interactiva</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.25);
+      --danger: #f43f5e;
+      --danger-glow: rgba(244, 63, 94, 0.25);
+      --warning: #f59e0b;
+      --purple: #a855f7;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 860px;
+    }
+
+    /* Card base */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+
+    /* Header styling */
+    .screen-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: #0d1322;
+      border: 1px solid #1f293d;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Mode selector */
+    .modes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .mode-card {
+      background: #0d1322;
+      border: 2px solid #1f293d;
+      border-radius: 14px;
+      padding: 20px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .mode-card:hover {
+      border-color: #374151;
+      transform: translateY(-2px);
+    }
+
+    .mode-card.selected {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.06);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .mode-icon {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .mode-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .mode-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px 28px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(2, 132, 199, 0.45);
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    }
+
+    .btn-secondary {
+      background: #1f2937;
+      color: var(--text);
+      border: 1px solid #374151;
+    }
+
+    .btn-secondary:hover {
+      background: #374151;
+    }
+
+    /* Game HUD */
+    .hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .hud-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0d1322;
+      padding: 8px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid #1f293d;
+    }
+
+    .hud-lives {
+      color: var(--danger);
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+    }
+
+    .hud-timer {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+    }
+
+    .hud-streak {
+      color: var(--warning);
+      font-weight: 700;
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #1f293d;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Question Box */
+    .question-section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    .question-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.45;
+      color: #fff;
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+
+    /* Code block styling */
+    .sql-code {
+      background: #080d1a;
+      border: 1px solid #1e293b;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin: 14px 0 20px 0;
+      line-height: 1.5;
+    }
+
+    /* Options */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      width: 100%;
+      padding: 16px 18px;
+      background: #0d1322;
+      border: 1.5px solid #1f293d;
+      border-radius: 12px;
+      color: var(--text);
+      text-align: left;
+      font-size: 0.98rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: #38bdf8;
+      background: #131c31;
+      transform: translateX(4px);
+    }
+
+    .option-letter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #1f293d;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent);
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .option-btn.selected {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    .option-btn.correct {
+      border-color: var(--success) !important;
+      background: rgba(16, 185, 129, 0.15) !important;
+      box-shadow: 0 0 16px var(--success-glow);
+    }
+    .option-btn.correct .option-letter {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .option-btn.wrong {
+      border-color: var(--danger) !important;
+      background: rgba(244, 63, 94, 0.15) !important;
+      box-shadow: 0 0 16px var(--danger-glow);
+    }
+    .option-btn.wrong .option-letter {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* Action bar below question */
+    .game-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      min-height: 52px;
+    }
+
+    .feedback-msg {
+      flex: 1;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .feedback-msg.correct { color: var(--success); }
+    .feedback-msg.wrong { color: var(--danger); }
+
+    /* Results Screen */
+    .results-hero {
+      text-align: center;
+      padding: 10px 0 30px 0;
+    }
+
+    .score-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      margin: 0 auto 20px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, #1e293b 0%, #0d1322 100%);
+      border: 4px solid var(--accent);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .score-num {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #fff;
+    }
+
+    .score-total {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .rank-badge {
+      display: inline-block;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .stat-box {
+      background: #0d1322;
+      border: 1px solid #1f293d;
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Section breakdown */
+    .breakdown-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 28px 0 16px 0;
+      color: #fff;
+    }
+
+    .section-bar-item {
+      margin-bottom: 12px;
+    }
+
+    .section-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+
+    .section-bar-track {
+      height: 8px;
+      background: #1f293d;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .section-bar-val {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+    }
+
+    /* Review list */
+    .review-accordion {
+      margin-top: 24px;
+      border-top: 1px solid var(--card-border);
+      padding-top: 20px;
+      text-align: left;
+    }
+
+    .review-item {
+      background: #0d1322;
+      border: 1px solid #1f293d;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .review-item.pass {
+      border-left: 4px solid var(--success);
+    }
+
+    .review-item.fail {
+      border-left: 4px solid var(--danger);
+    }
+
+    .sound-toggle {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .sound-toggle:hover {
+      color: #fff;
+    }
+
+    /* Footer print view */
+    .print-only {
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0 !important;
+      }
+      .card {
+        border: none !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        padding: 0 !important;
+        color: #000 !important;
+      }
+      .no-print, .btn, .hud, .sound-toggle, .progress-bar-container {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+        margin-top: 20px;
+        color: #000;
+      }
+      .score-circle {
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+      }
+      .score-num { color: #000 !important; }
+      .stat-box, .review-item {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        color: #000 !important;
+      }
+      .review-item * {
+        color: #000 !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .card { padding: 20px 16px; }
+      .title { font-size: 1.6rem; }
+      .modes-grid { grid-template-columns: 1fr; }
+      .stats-summary { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- ==================== PANTALLA 1: BIENVENIDA / REGISTRO ==================== -->
+  <div id="screen-welcome" class="card">
+    <div class="screen-header">
+      <div class="badge">🛡️ Auditoría de Sistemas • MySQL 8.0</div>
+      <h1 class="title">SQL Audit Quest</h1>
+      <p class="subtitle">Desafío interactivo de evaluación — Seguridad Lógica en Bases de Datos</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nombre del Estudiante</label>
+      <input type="text" id="student-name" class="form-input" placeholder="Ej: Carlos Alfredo Hernández" autofocus>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Carné Universitario</label>
+      <input type="text" id="student-id" class="form-input" placeholder="Ej: US-2024-001">
+    </div>
+
+    <div class="form-label" style="margin-bottom: 10px;">Selecciona el Modo de Juego</div>
+    <div class="modes-grid">
+      <div class="mode-card selected" onclick="selectMode('arcade')">
+        <div class="mode-icon">🎮</div>
+        <div class="mode-title">Modo Arcade</div>
+        <div class="mode-desc">3 vidas, racha de combo, sonidos retro y retroalimentación inmediata.</div>
+      </div>
+      <div class="mode-card" onclick="selectMode('eval')">
+        <div class="mode-icon">📝</div>
+        <div class="mode-title">Modo Examen</div>
+        <div class="mode-desc">Sin límite de vidas, ritmo constante, cronómetro continuo y reporte oficial.</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startGame()">
+      <span>Comenzar Evaluación</span>
+      <span>🚀</span>
+    </button>
+  </div>
+
+  <!-- ==================== PANTALLA 2: JUEGO / PREGUNTAS ==================== -->
+  <div id="screen-game" class="card" style="display: none;">
+    
+    <!-- HUD superior -->
+    <div class="hud">
+      <div class="hud-pill">
+        <span>👤</span>
+        <span id="hud-name">Estudiante</span>
+      </div>
+
+      <div class="hud-pill" id="hud-lives-container">
+        <span>Vidas:</span>
+        <span class="hud-lives" id="hud-lives">❤️❤️❤️</span>
+      </div>
+
+      <div class="hud-pill">
+        <span>🔥 Racha:</span>
+        <span class="hud-streak" id="hud-streak">0</span>
+      </div>
+
+      <div class="hud-pill">
+        <span>⏱️</span>
+        <span class="hud-timer" id="hud-timer">00:00</span>
+      </div>
+
+      <button class="sound-toggle" onclick="toggleMute()" title="Silenciar / Activar sonido" id="btn-sound">🔊</button>
+    </div>
+
+    <!-- Barra de progreso -->
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+
+    <!-- Pregunta activa -->
+    <div class="question-section-title" id="q-section">SECCIÓN</div>
+    <div class="question-title" id="q-text">Pregunta...</div>
+    <div id="q-code" class="sql-code" style="display: none;"></div>
+
+    <!-- Opciones de respuesta -->
+    <div class="options-grid" id="options-container">
+      <!-- Inyectadas dinámicamente -->
+    </div>
+
+    <!-- Feedback y botón de avanzar -->
+    <div class="game-actions">
+      <div class="feedback-msg" id="feedback-msg"></div>
+      <button class="btn btn-primary" id="btn-next" style="width: auto; display: none;" onclick="nextQuestion()">
+        <span>Siguiente Pregunta</span>
+        <span>➔</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== PANTALLA 3: RESULTADOS ==================== -->
+  <div id="screen-results" class="card" style="display: none;">
+    <div class="results-hero">
+      <div class="badge" id="res-badge">Certificado de Evaluación</div>
+      <div class="score-circle">
+        <div class="score-num" id="res-score">10.0</div>
+        <div class="score-total">de 10.0 pts</div>
+      </div>
+      <div class="rank-badge" id="res-rank">Maestro en Seguridad</div>
+      <p class="subtitle" id="res-feedback-text">¡Excelente comprensión de las directivas y controles en MySQL!</p>
+    </div>
+
+    <!-- Resumen de estadísticas -->
+    <div class="stats-summary">
+      <div class="stat-box">
+        <div class="stat-val" id="stat-correct" style="color: var(--success);">0</div>
+        <div class="stat-lbl">Aciertos (de 30)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-wrong" style="color: var(--danger);">0</div>
+        <div class="stat-lbl">Fallos</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-percent" style="color: var(--accent);">0%</div>
+        <div class="stat-lbl">Precisión</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-time" style="color: var(--purple);">00:00</div>
+        <div class="stat-lbl">Tiempo Total</div>
+      </div>
+    </div>
+
+    <!-- Desglose por Secciones Temáticas -->
+    <div class="breakdown-title">📊 Rendimiento por Eje Temático</div>
+    <div id="sections-breakdown">
+      <!-- Inyectado dinámicamente -->
+    </div>
+
+    <!-- Revisión Detallada de Respuestas -->
+    <div class="review-accordion">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 1.05rem; font-weight: 700;">📋 Revisión Detallada (30 Preguntas)</h3>
+        <button class="btn btn-secondary no-print" style="width: auto; padding: 6px 14px; font-size: 0.85rem;" onclick="toggleReviewDetails()">
+          Mostrar / Ocultar
+        </button>
+      </div>
+      <div id="review-list" style="display: block;">
+        <!-- Inyectado dinámicamente -->
+      </div>
+    </div>
+
+    <!-- Acciones finales -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px;" class="no-print">
+      <button class="btn btn-secondary" onclick="window.print()">
+        <span>🖨️ Imprimir / Guardar PDF</span>
+      </button>
+      <button class="btn btn-primary" onclick="restartGame()">
+        <span>🔄 Jugar de Nuevo</span>
+      </button>
+    </div>
+
+    <!-- Firma para versión impresa -->
+    <div class="print-only">
+      <hr style="margin: 40px 0 20px 0; border: 0.5px solid #ccc;">
+      <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+        <div style="text-align: center; width: 45%;">
+          <p>___________________________________</p>
+          <p style="font-weight: bold; margin-top: 5px;">Firma del Estudiante</p>
+        </div>
+        <div style="text-align: center; width: 45%;">
+          <p>___________________________________</p>
+          <p style="font-weight: bold; margin-top: 5px;">Firma del Docente Evaluador</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  // BANCO DE PREGUNTAS CARGADO DIRECTAMENTE
+  const PREGUNTAS = [
+  {
+    "id": 1,
+    "seccion": "SECCIÓN 1: Conceptos Fundamentales de Seguridad Lógica en Bases de Datos",
+    "enunciado": "¿Cuál de los siguientes conceptos se refiere a \"verificar que quien intenta acceder al sistema es realmente quien dice ser\"?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Autorización"
+      },
+      {
+        "letra": "B",
+        "texto": "Autenticación"
+      },
+      {
+        "letra": "C",
+        "texto": "Cifrado"
+      },
+      {
+        "letra": "D",
+        "texto": "Auditoría"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 2,
+    "seccion": "SECCIÓN 1: Conceptos Fundamentales de Seguridad Lógica en Bases de Datos",
+    "enunciado": "¿Qué principio de seguridad establece que cada usuario debe tener únicamente los permisos estrictamente necesarios para realizar su trabajo y nada más?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Principio de no repudio"
+      },
+      {
+        "letra": "B",
+        "texto": "Principio de disponibilidad máxima"
+      },
+      {
+        "letra": "C",
+        "texto": "Principio de mínimo privilegio"
+      },
+      {
+        "letra": "D",
+        "texto": "Principio de redundancia"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 3,
+    "seccion": "SECCIÓN 1: Conceptos Fundamentales de Seguridad Lógica en Bases de Datos",
+    "enunciado": "¿Cuál de las siguientes amenazas consiste en insertar código SQL malicioso dentro de un campo de entrada para manipular las consultas de la base de datos?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Fuerza bruta"
+      },
+      {
+        "letra": "B",
+        "texto": "Escalamiento de privilegios"
+      },
+      {
+        "letra": "C",
+        "texto": "Inyección SQL"
+      },
+      {
+        "letra": "D",
+        "texto": "Sniffing"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 4,
+    "seccion": "SECCIÓN 2: Conexión y Reconocimiento del Entorno MySQL",
+    "enunciado": "¿Cuál es el comando correcto para conectarse a MySQL desde la línea de comandos utilizando el usuario \"root\" con contraseña?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "mysql --connect root -pass"
+      },
+      {
+        "letra": "B",
+        "texto": "mysql -u root -p"
+      },
+      {
+        "letra": "C",
+        "texto": "connect mysql root password"
+      },
+      {
+        "letra": "D",
+        "texto": "login mysql -user root"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 5,
+    "seccion": "SECCIÓN 2: Conexión y Reconocimiento del Entorno MySQL",
+    "enunciado": "¿Qué consulta SQL permite conocer la versión del servidor MySQL al que estás conectado?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "SHOW SERVER VERSION;"
+      },
+      {
+        "letra": "B",
+        "texto": "GET VERSION();"
+      },
+      {
+        "letra": "C",
+        "texto": "SELECT VERSION();"
+      },
+      {
+        "letra": "D",
+        "texto": "DISPLAY VERSION;"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 6,
+    "seccion": "SECCIÓN 2: Conexión y Reconocimiento del Entorno MySQL",
+    "enunciado": "¿Por qué es relevante para un auditor conocer la versión de MySQL instalada en la organización?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Para calcular el costo de la licencia del software."
+      },
+      {
+        "letra": "B",
+        "texto": "Para identificar vulnerabilidades conocidas y verificar si existen parches de seguridad pendientes."
+      },
+      {
+        "letra": "C",
+        "texto": "Para saber cuántos usuarios pueden conectarse simultáneamente."
+      },
+      {
+        "letra": "D",
+        "texto": "Para determinar el espacio en disco que ocupa el motor de base de datos."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 7,
+    "seccion": "SECCIÓN 3: Bases de Datos del Sistema y Comandos Básicos",
+    "enunciado": "¿Cuál de los siguientes comandos muestra TODAS las bases de datos existentes en un servidor MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "LIST DATABASES;"
+      },
+      {
+        "letra": "B",
+        "texto": "SELECT * FROM databases;"
+      },
+      {
+        "letra": "C",
+        "texto": "SHOW DATABASES;"
+      },
+      {
+        "letra": "D",
+        "texto": "DISPLAY ALL SCHEMAS;"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 8,
+    "seccion": "SECCIÓN 3: Bases de Datos del Sistema y Comandos Básicos",
+    "enunciado": "¿Cuál de las siguientes bases de datos del sistema en MySQL almacena las cuentas de usuario, privilegios y configuración de seguridad del servidor?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "information_schema"
+      },
+      {
+        "letra": "B",
+        "texto": "performance_schema"
+      },
+      {
+        "letra": "C",
+        "texto": "sys"
+      },
+      {
+        "letra": "D",
+        "texto": "mysql"
+      }
+    ],
+    "correcta": "D"
+  },
+  {
+    "id": 9,
+    "seccion": "SECCIÓN 4: Revisión de Cuentas de Usuario",
+    "enunciado": "¿En qué tabla del sistema MySQL se almacenan las cuentas de usuario, sus hosts y atributos de seguridad?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "information_schema.USER_PRIVILEGES"
+      },
+      {
+        "letra": "B",
+        "texto": "mysql.user"
+      },
+      {
+        "letra": "C",
+        "texto": "sys.user_accounts"
+      },
+      {
+        "letra": "D",
+        "texto": "performance_schema.users"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 10,
+    "seccion": "SECCIÓN 4: Revisión de Cuentas de Usuario",
+    "enunciado": "¿Cuál de las siguientes consultas permite identificar si existen cuentas ANÓNIMAS (sin nombre de usuario) en MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "SELECT User FROM mysql.user WHERE User = 'anonymous';"
+      },
+      {
+        "letra": "B",
+        "texto": "SELECT User, Host FROM mysql.user WHERE User = '';"
+      },
+      {
+        "letra": "C",
+        "texto": "SHOW ANONYMOUS USERS;"
+      },
+      {
+        "letra": "D",
+        "texto": "SELECT * FROM mysql.accounts WHERE type = 'anon';"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 11,
+    "seccion": "SECCIÓN 4: Revisión de Cuentas de Usuario",
+    "enunciado": "¿Cuál de los siguientes valores en el campo Host de una cuenta MySQL representa el MAYOR riesgo de seguridad?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "'localhost'"
+      },
+      {
+        "letra": "B",
+        "texto": "'192.168.1.10'"
+      },
+      {
+        "letra": "C",
+        "texto": "'%'"
+      },
+      {
+        "letra": "D",
+        "texto": "'127.0.0.1'"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 12,
+    "seccion": "SECCIÓN 5: Base de Datos de Práctica — empresa_auditoria",
+    "enunciado": "¿Cuál de los siguientes comandos permite seleccionar y activar la base de datos \"empresa_auditoria\" para trabajar en ella?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "SELECT DATABASE empresa_auditoria;"
+      },
+      {
+        "letra": "B",
+        "texto": "OPEN empresa_auditoria;"
+      },
+      {
+        "letra": "C",
+        "texto": "USE empresa_auditoria;"
+      },
+      {
+        "letra": "D",
+        "texto": "CONNECT TO empresa_auditoria;"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 13,
+    "seccion": "SECCIÓN 5: Base de Datos de Práctica — empresa_auditoria",
+    "enunciado": "En la tabla \"empleados\" de empresa_auditoria, ¿cuál de los siguientes campos es considerado un dato SENSIBLE desde el punto de vista de privacidad y auditoría?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "cargo"
+      },
+      {
+        "letra": "B",
+        "texto": "fecha_contratacion"
+      },
+      {
+        "letra": "C",
+        "texto": "dui"
+      },
+      {
+        "letra": "D",
+        "texto": "id_departamento"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 14,
+    "seccion": "SECCIÓN 5: Base de Datos de Práctica — empresa_auditoria",
+    "enunciado": "Observa la siguiente consulta:\n\nSELECT e.primer_nombre, e.apellido, d.nombre AS departamento, s.salario_base\nFROM empleados e\nJOIN departamentos d ON e.id_departamento = d.id_departamento\nJOIN salarios s ON e.id_empleado = s.id_empleado;\n\n¿Por qué un auditor considera que esta consulta presenta un riesgo de seguridad si no se controla su acceso?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Porque la consulta puede eliminar datos accidentalmente."
+      },
+      {
+        "letra": "B",
+        "texto": "Porque expone información confidencial como salarios a usuarios que no deberían verla."
+      },
+      {
+        "letra": "C",
+        "texto": "Porque ralentiza el servidor y afecta la disponibilidad."
+      },
+      {
+        "letra": "D",
+        "texto": "Porque genera automáticamente registros en el log de errores."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 15,
+    "seccion": "SECCIÓN 6: Creación de Usuarios y Asignación de Privilegios",
+    "enunciado": "¿Cuál de los siguientes comandos crea correctamente el usuario 'auditor'@'localhost' con contraseña?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ADD USER 'auditor'@'localhost' PASSWORD 'Aud_2024!';"
+      },
+      {
+        "letra": "B",
+        "texto": "CREATE USER 'auditor'@'localhost' IDENTIFIED BY 'Aud_2024!';"
+      },
+      {
+        "letra": "C",
+        "texto": "INSERT USER 'auditor' AT 'localhost' WITH PASSWORD 'Aud_2024!';"
+      },
+      {
+        "letra": "D",
+        "texto": "NEW USER 'auditor'@'localhost' PASS 'Aud_2024!';"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 16,
+    "seccion": "SECCIÓN 6: Creación de Usuarios y Asignación de Privilegios",
+    "enunciado": "¿Qué comando SQL otorga al usuario 'auditor'@'localhost' permiso de SOLO LECTURA sobre todas las tablas de empresa_auditoria?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "GIVE SELECT ON empresa_auditoria.* TO 'auditor'@'localhost';"
+      },
+      {
+        "letra": "B",
+        "texto": "ALLOW READ ON empresa_auditoria.* FOR 'auditor'@'localhost';"
+      },
+      {
+        "letra": "C",
+        "texto": "GRANT SELECT ON empresa_auditoria.* TO 'auditor'@'localhost';"
+      },
+      {
+        "letra": "D",
+        "texto": "PERMIT SELECT ON empresa_auditoria.* TO 'auditor'@'localhost';"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 17,
+    "seccion": "SECCIÓN 6: Creación de Usuarios y Asignación de Privilegios",
+    "enunciado": "¿Cuál es el comando correcto para RETIRAR (revocar) el privilegio INSERT al usuario 'operador'@'%' sobre la tabla empleados?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "REMOVE INSERT ON empresa_auditoria.empleados FROM 'operador'@'%';"
+      },
+      {
+        "letra": "B",
+        "texto": "DELETE GRANT INSERT ON empresa_auditoria.empleados FOR 'operador'@'%';"
+      },
+      {
+        "letra": "C",
+        "texto": "REVOKE INSERT ON empresa_auditoria.empleados FROM 'operador'@'%';"
+      },
+      {
+        "letra": "D",
+        "texto": "DROP PRIVILEGE INSERT ON empresa_auditoria.empleados TO 'operador'@'%';"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 18,
+    "seccion": "SECCIÓN 7: Uso de Roles en MySQL",
+    "enunciado": "¿Cuál de las siguientes afirmaciones describe CORRECTAMENTE el concepto de ROL en MySQL 8.0?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Un rol es un tipo especial de tabla que almacena contraseñas de usuarios."
+      },
+      {
+        "letra": "B",
+        "texto": "Un rol es un conjunto de privilegios que puede asignarse a uno o varios usuarios."
+      },
+      {
+        "letra": "C",
+        "texto": "Un rol es una conexión cifrada entre el cliente y el servidor."
+      },
+      {
+        "letra": "D",
+        "texto": "Un rol es un proceso automático que registra las consultas ejecutadas."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 19,
+    "seccion": "SECCIÓN 7: Uso de Roles en MySQL",
+    "enunciado": "¿Cuál es el comando correcto para CREAR un rol llamado 'rol_consulta' en MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ADD ROLE 'rol_consulta';"
+      },
+      {
+        "letra": "B",
+        "texto": "CREATE ROLE 'rol_consulta';"
+      },
+      {
+        "letra": "C",
+        "texto": "NEW ROLE rol_consulta;"
+      },
+      {
+        "letra": "D",
+        "texto": "INSERT ROLE 'rol_consulta' INTO mysql.roles;"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 20,
+    "seccion": "SECCIÓN 7: Uso de Roles en MySQL",
+    "enunciado": "¿Cuál es la PRINCIPAL ventaja de usar roles para administrar privilegios en MySQL frente a asignar privilegios directamente a cada usuario?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Los roles permiten conectarse al servidor sin contraseña."
+      },
+      {
+        "letra": "B",
+        "texto": "Los roles facilitan la administración: al modificar el rol, el cambio aplica a todos los usuarios que lo tienen asignado."
+      },
+      {
+        "letra": "C",
+        "texto": "Los roles aumentan el rendimiento de las consultas SQL."
+      },
+      {
+        "letra": "D",
+        "texto": "Los roles eliminan la necesidad de hacer respaldos de la base de datos."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 21,
+    "seccion": "SECCIÓN 8: Contraseñas y Políticas de Seguridad",
+    "enunciado": "¿Cuál de las siguientes contraseñas es la MÁS SEGURA según las buenas prácticas de auditoría?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "password"
+      },
+      {
+        "letra": "B",
+        "texto": "12345678"
+      },
+      {
+        "letra": "C",
+        "texto": "Aud1t0r_2024!"
+      },
+      {
+        "letra": "D",
+        "texto": "auditor"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 22,
+    "seccion": "SECCIÓN 8: Contraseñas y Políticas de Seguridad",
+    "enunciado": "¿Cuál de los siguientes comandos configura la cuenta de un usuario para que su contraseña EXPIRE en 90 días?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "SET PASSWORD EXPIRE 90 FOR 'auditor'@'localhost';"
+      },
+      {
+        "letra": "B",
+        "texto": "UPDATE mysql.user SET expire=90 WHERE User='auditor';"
+      },
+      {
+        "letra": "C",
+        "texto": "ALTER USER 'auditor'@'localhost' PASSWORD EXPIRE INTERVAL 90 DAY;"
+      },
+      {
+        "letra": "D",
+        "texto": "MODIFY USER 'auditor'@'localhost' EXPIRE 90;"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 23,
+    "seccion": "SECCIÓN 9: Cifrado de la Conexión (TLS/SSL)",
+    "enunciado": "¿Qué protege el cifrado TLS/SSL en las conexiones de una base de datos MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Los datos almacenados en disco dentro de la base de datos."
+      },
+      {
+        "letra": "B",
+        "texto": "Los datos que viajan entre el cliente y el servidor MySQL, protegiéndolos de interceptación."
+      },
+      {
+        "letra": "C",
+        "texto": "Las contraseñas almacenadas en la tabla mysql.user."
+      },
+      {
+        "letra": "D",
+        "texto": "El acceso físico al servidor donde corre MySQL."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 24,
+    "seccion": "SECCIÓN 9: Cifrado de la Conexión (TLS/SSL)",
+    "enunciado": "¿Qué indica que el campo 'Ssl_cipher' aparece VACÍO al ejecutar SHOW SESSION STATUS LIKE 'Ssl_cipher'?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Que el cifrado SSL está activo y funcionando correctamente."
+      },
+      {
+        "letra": "B",
+        "texto": "Que la conexión actual NO está cifrada (no se usa SSL/TLS)."
+      },
+      {
+        "letra": "C",
+        "texto": "Que el usuario no tiene privilegios suficientes para verificar el cifrado."
+      },
+      {
+        "letra": "D",
+        "texto": "Que la versión de MySQL no soporta SSL."
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 25,
+    "seccion": "SECCIÓN 10: Registros (Logs) para Auditoría",
+    "enunciado": "¿Cuál de los siguientes tipos de registro de MySQL guarda TODAS las consultas ejecutadas en el servidor, independientemente del usuario?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Error log (registro de errores)"
+      },
+      {
+        "letra": "B",
+        "texto": "Binary log (registro binario)"
+      },
+      {
+        "letra": "C",
+        "texto": "General query log (registro general de consultas)"
+      },
+      {
+        "letra": "D",
+        "texto": "Slow query log (registro de consultas lentas)"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 26,
+    "seccion": "SECCIÓN 10: Registros (Logs) para Auditoría",
+    "enunciado": "¿Cuál de los siguientes comandos activa el registro general de consultas (general_log) en MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ENABLE LOG GENERAL;"
+      },
+      {
+        "letra": "B",
+        "texto": "SET GLOBAL general_log = 'ON';"
+      },
+      {
+        "letra": "C",
+        "texto": "START LOGGING QUERIES;"
+      },
+      {
+        "letra": "D",
+        "texto": "ALTER SERVER SET general_log = TRUE;"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 27,
+    "seccion": "SECCIÓN 10: Registros (Logs) para Auditoría",
+    "enunciado": "¿Cuál de los siguientes tipos de log de MySQL es el más útil para recuperar datos ante una falla, ya que registra todos los cambios realizados sobre la información?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Error log"
+      },
+      {
+        "letra": "B",
+        "texto": "General query log"
+      },
+      {
+        "letra": "C",
+        "texto": "Binary log"
+      },
+      {
+        "letra": "D",
+        "texto": "Slow query log"
+      }
+    ],
+    "correcta": "C"
+  },
+  {
+    "id": 28,
+    "seccion": "SECCIÓN 11: Respaldo, Restauración y Limpieza del Entorno",
+    "enunciado": "¿Cuál de los siguientes comandos genera un respaldo lógico (dump) de la base de datos empresa_auditoria usando mysqldump?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "backup -u root empresa_auditoria > respaldo.sql"
+      },
+      {
+        "letra": "B",
+        "texto": "mysqldump -u root -p empresa_auditoria > respaldo.sql"
+      },
+      {
+        "letra": "C",
+        "texto": "export empresa_auditoria TO respaldo.sql"
+      },
+      {
+        "letra": "D",
+        "texto": "mysqlbackup empresa_auditoria respaldo.sql"
+      }
+    ],
+    "correcta": "B"
+  },
+  {
+    "id": 29,
+    "seccion": "SECCIÓN 11: Respaldo, Restauración y Limpieza del Entorno",
+    "enunciado": "¿Por qué un auditor considera que \"un respaldo que nunca ha sido restaurado no ofrece garantía de recuperabilidad\"?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Porque sin restaurar, el archivo puede estar incompleto o dañado y no se sabría hasta el momento de necesitarlo."
+      },
+      {
+        "letra": "B",
+        "texto": "Porque los archivos de respaldo caducan después de 30 días sin ser restaurados."
+      },
+      {
+        "letra": "C",
+        "texto": "Porque MySQL elimina automáticamente respaldos que no se restauran."
+      },
+      {
+        "letra": "D",
+        "texto": "Porque la restauración es el único proceso que genera un nuevo respaldo actualizado."
+      }
+    ],
+    "correcta": "A"
+  },
+  {
+    "id": 30,
+    "seccion": "SECCIÓN 11: Respaldo, Restauración y Limpieza del Entorno",
+    "enunciado": "¿Cuál de los siguientes comandos elimina correctamente al usuario 'auditor'@'localhost' de MySQL?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "DELETE USER 'auditor'@'localhost';"
+      },
+      {
+        "letra": "B",
+        "texto": "REMOVE USER 'auditor'@'localhost';"
+      },
+      {
+        "letra": "C",
+        "texto": "DROP USER 'auditor'@'localhost';"
+      },
+      {
+        "letra": "D",
+        "texto": "KILL USER 'auditor'@'localhost';"
+      }
+    ],
+    "correcta": "C"
+  }
+];
+
+  // ESTADO DEL JUEGO
+  let gameMode = 'arcade'; // 'arcade' | 'eval'
+  let studentName = '';
+  let studentId = '';
+  let currentIndex = 0;
+  let score = 0;
+  let correctCount = 0;
+  let wrongCount = 0;
+  let lives = 3;
+  let streak = 0;
+  let maxStreak = 0;
+  let userAnswers = []; // [{ id, selected, correct, isCorrect }]
+  let timerInterval = null;
+  let totalSeconds = 0;
+  let soundEnabled = true;
+  let answeredCurrent = false;
+
+  // SINTETIZADOR DE AUDIO (Web Audio API)
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) audioCtx = new AudioContext();
+    }
+    return audioCtx;
+  }
+
+  function playSound(type) {
+    if (!soundEnabled) return;
+    try {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === 'correct') {
+        // Tono ascendente agradable
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'wrong') {
+        // Zumbido grave descendente
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.setValueAtTime(164.81, now + 0.12);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'gameover') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(196, now);
+        osc.frequency.linearRampToValueAtTime(98, now + 0.5);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+        osc.start(now);
+        osc.stop(now + 0.5);
+      } else if (type === 'victory') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.1);
+        osc.frequency.setValueAtTime(783.99, now + 0.2);
+        osc.frequency.setValueAtTime(1046.50, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        osc.start(now);
+        osc.stop(now + 0.6);
+      }
+    } catch (e) {
+      console.warn('Audio no disponible:', e);
+    }
+  }
+
+  function toggleMute() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('btn-sound').innerText = soundEnabled ? '🔊' : '🔇';
+  }
+
+  // SELECCIONAR MODO
+  function selectMode(mode) {
+    gameMode = mode;
+    document.querySelectorAll('.mode-card').forEach((c, idx) => {
+      c.classList.toggle('selected', (mode === 'arcade' && idx === 0) || (mode === 'eval' && idx === 1));
+    });
+  }
+
+  // INICIAR JUEGO
+  function startGame() {
+    const nameInput = document.getElementById('student-name').value.trim();
+    const idInput = document.getElementById('student-id').value.trim();
+
+    studentName = nameInput || 'Estudiante';
+    studentId = idInput || 'S/N';
+
+    document.getElementById('hud-name').innerText = studentName;
+    document.getElementById('hud-lives-container').style.display = (gameMode === 'arcade') ? 'flex' : 'none';
+
+    // Reset variables
+    currentIndex = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    lives = 3;
+    streak = 0;
+    maxStreak = 0;
+    userAnswers = [];
+    totalSeconds = 0;
+    answeredCurrent = false;
+
+    updateHUD();
+
+    // Iniciar cronómetro
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      totalSeconds++;
+      const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const secs = String(totalSeconds % 60).padStart(2, '0');
+      document.getElementById('hud-timer').innerText = `${mins}:${secs}`;
+    }, 1000);
+
+    // Cambiar pantallas
+    document.getElementById('screen-welcome').style.display = 'none';
+    document.getElementById('screen-results').style.display = 'none';
+    document.getElementById('screen-game').style.display = 'block';
+
+    renderQuestion();
+  }
+
+  function updateHUD() {
+    document.getElementById('hud-streak').innerText = streak;
+    if (gameMode === 'arcade') {
+      let hearts = '';
+      for (let i = 0; i < lives; i++) hearts += '❤️';
+      for (let i = lives; i < 3; i++) hearts += '🖤';
+      document.getElementById('hud-lives').innerText = hearts;
+    }
+    const progress = (currentIndex / PREGUNTAS.length) * 100;
+    document.getElementById('progress-fill').style.width = `${progress}%`;
+  }
+
+  // RENDERIZAR PREGUNTA ACTUAL
+  function renderQuestion() {
+    answeredCurrent = false;
+    const q = PREGUNTAS[currentIndex];
+    
+    // UI elements
+    document.getElementById('q-section').innerText = `${q.seccion} • Pregunta ${currentIndex + 1} de ${PREGUNTAS.length}`;
+    
+    // Separar código SQL si existe en el enunciado
+    const qTextEl = document.getElementById('q-text');
+    const qCodeEl = document.getElementById('q-code');
+    
+    if (q.enunciado.includes('SELECT') || q.enunciado.includes('GRANT') || q.enunciado.includes('FROM')) {
+      const parts = q.enunciado.split(/\n\n+/);
+      if (parts.length >= 3) {
+        qTextEl.innerText = parts[0] + '\n' + parts[2];
+        qCodeEl.innerText = parts[1];
+        qCodeEl.style.display = 'block';
+      } else {
+        qTextEl.innerText = q.enunciado;
+        qCodeEl.style.display = 'none';
+      }
+    } else {
+      qTextEl.innerText = q.enunciado;
+      qCodeEl.style.display = 'none';
+    }
+
+    // Opciones
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+
+    q.opciones.forEach(op => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `
+        <span class="option-letter">${op.letra}</span>
+        <span class="option-text">${op.texto}</span>
+      `;
+      btn.onclick = () => handleAnswer(op.letra, btn);
+      container.appendChild(btn);
+    });
+
+    // Reset feedback
+    const feedback = document.getElementById('feedback-msg');
+    feedback.innerText = '';
+    feedback.className = 'feedback-msg';
+    document.getElementById('btn-next').style.display = 'none';
+
+    updateHUD();
+  }
+
+  // PROCESAR RESPUESTA
+  function handleAnswer(selectedLetter, clickedBtn) {
+    if (answeredCurrent) return;
+    answeredCurrent = true;
+
+    const q = PREGUNTAS[currentIndex];
+    const isCorrect = (selectedLetter === q.correcta);
+
+    // Deshabilitar todas las opciones
+    const allBtns = document.querySelectorAll('.option-btn');
+    allBtns.forEach(btn => {
+      btn.disabled = true;
+      const letter = btn.querySelector('.option-letter').innerText.trim();
+      if (letter === q.correcta) {
+        btn.classList.add('correct');
+      } else if (letter === selectedLetter && !isCorrect) {
+        btn.classList.add('wrong');
+      }
+    });
+
+    const feedback = document.getElementById('feedback-msg');
+
+    if (isCorrect) {
+      correctCount++;
+      streak++;
+      if (streak > maxStreak) maxStreak = streak;
+      playSound('correct');
+      feedback.className = 'feedback-msg correct';
+      feedback.innerHTML = `<span>✓ ¡Excelente! Respuesta correcta (+0.33 pts)</span>`;
+    } else {
+      wrongCount++;
+      streak = 0;
+      playSound('wrong');
+      feedback.className = 'feedback-msg wrong';
+      feedback.innerHTML = `<span>✗ Incorrecto. La opción correcta era la ${q.correcta}</span>`;
+
+      if (gameMode === 'arcade') {
+        lives--;
+        if (lives <= 0) {
+          updateHUD();
+          setTimeout(() => endGame(true), 1200);
+          return;
+        }
+      }
+    }
+
+    userAnswers.push({
+      id: q.id,
+      seccion: q.seccion,
+      enunciado: q.enunciado,
+      seleccionada: selectedLetter,
+      correcta: q.correcta,
+      isCorrect: isCorrect
+    });
+
+    updateHUD();
+    document.getElementById('btn-next').style.display = 'inline-flex';
+  }
+
+  function nextQuestion() {
+    currentIndex++;
+    if (currentIndex >= PREGUNTAS.length) {
+      endGame(false);
+    } else {
+      renderQuestion();
+    }
+  }
+
+  // FINALIZAR JUEGO
+  function endGame(isGameOverByLives) {
+    clearInterval(timerInterval);
+
+    // Calcular nota final sobre 10
+    const rawNota = (correctCount / PREGUNTAS.length) * 10;
+    const notaFinal = Math.min(10, Math.max(0, rawNota)).toFixed(1);
+    const porcentaje = Math.round((correctCount / PREGUNTAS.length) * 100);
+
+    const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+    const secs = String(totalSeconds % 60).padStart(2, '0');
+    const totalTimeStr = `${mins}m ${secs}s`;
+
+    if (isGameOverByLives) {
+      playSound('gameover');
+      document.getElementById('res-badge').innerText = '💀 Fin del Intento (Sin Vidas)';
+      document.getElementById('res-rank').innerText = '🛡️ Misión Incompleta';
+      document.getElementById('res-rank').style.background = 'rgba(244, 63, 94, 0.2)';
+      document.getElementById('res-rank').style.color = 'var(--danger)';
+      document.getElementById('res-feedback-text').innerText = 'Te has quedado sin vidas en modo Arcade. ¡Repasa los conceptos clave y vuelve a intentarlo!';
+    } else {
+      playSound('victory');
+      document.getElementById('res-badge').innerText = '🏆 Evaluación Completada';
+      
+      let rankText = 'Maestro de Seguridad SQL';
+      let rankColor = 'var(--accent)';
+      let rankBg = 'rgba(56, 189, 248, 0.2)';
+      let msg = '¡Rendimiento impecable! Dominas los principios de seguridad lógica y auditoría en MySQL.';
+
+      if (rawNota < 6.0) {
+        rankText = '⚠️ Nivel de Riesgo (Repaso Requerido)';
+        rankColor = 'var(--danger)';
+        rankBg = 'rgba(244, 63, 94, 0.2)';
+        msg = 'Se recomienda reforzar temas de privilegios mínimos, cifrado y administración de usuarios.';
+      } else if (rawNota < 8.0) {
+        rankText = '🔍 Auditor Junior';
+        rankColor = 'var(--warning)';
+        rankBg = 'rgba(245, 158, 11, 0.2)';
+        msg = 'Buen desempeño. Tienes los conceptos base pero hay áreas de oportunidad en directivas avanzadas.';
+      } else if (rawNota < 9.5) {
+        rankText = '🛡️ Auditor Especialista';
+        rankColor = 'var(--success)';
+        rankBg = 'rgba(16, 185, 129, 0.2)';
+        msg = '¡Muy buen trabajo! Cuentas con un sólido entendimiento de seguridad lógica en bases de datos.';
+      }
+
+      const rankBadge = document.getElementById('res-rank');
+      rankBadge.innerText = rankText;
+      rankBadge.style.color = rankColor;
+      rankBadge.style.background = rankBg;
+      document.getElementById('res-feedback-text').innerText = msg;
+    }
+
+    document.getElementById('res-score').innerText = notaFinal;
+    document.getElementById('stat-correct').innerText = `${correctCount} / ${PREGUNTAS.length}`;
+    document.getElementById('stat-wrong').innerText = wrongCount;
+    document.getElementById('stat-percent').innerText = `${porcentaje}%`;
+    document.getElementById('stat-time').innerText = totalTimeStr;
+
+    // Desglose por secciones
+    renderBreakdown();
+
+    // Lista de revisión
+    renderReviewList();
+
+    // Pantalla
+    document.getElementById('screen-game').style.display = 'none';
+    document.getElementById('screen-results').style.display = 'block';
+  }
+
+  // RENDERIZAR DESGLOSE POR SECCIONES
+  function renderBreakdown() {
+    const secStats = {};
+    userAnswers.forEach(ans => {
+      if (!secStats[ans.seccion]) {
+        secStats[ans.seccion] = { total: 0, correct: 0 };
+      }
+      secStats[ans.seccion].total++;
+      if (ans.isCorrect) secStats[ans.seccion].correct++;
+    });
+
+    const container = document.getElementById('sections-breakdown');
+    container.innerHTML = '';
+
+    Object.keys(secStats).forEach(sec => {
+      const s = secStats[sec];
+      const pct = Math.round((s.correct / s.total) * 100);
+      const div = document.createElement('div');
+      div.className = 'section-bar-item';
+      div.innerHTML = `
+        <div class="section-bar-header">
+          <span>${sec}</span>
+          <span style="font-weight: 700; color: ${pct >= 70 ? 'var(--success)' : (pct >= 50 ? 'var(--warning)' : 'var(--danger)')};">${s.correct}/${s.total} (${pct}%)</span>
+        </div>
+        <div class="section-bar-track">
+          <div class="section-bar-val" style="width: ${pct}%; background: ${pct >= 70 ? 'var(--success)' : (pct >= 50 ? 'var(--warning)' : 'var(--danger)')};"></div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // RENDERIZAR LISTA DE REVISIÓN
+  function renderReviewList() {
+    const list = document.getElementById('review-list');
+    list.innerHTML = '';
+
+    userAnswers.forEach((ans, idx) => {
+      const div = document.createElement('div');
+      div.className = `review-item ${ans.isCorrect ? 'pass' : 'fail'}`;
+      div.innerHTML = `
+        <div style="font-weight: 700; margin-bottom: 4px;">
+          ${idx + 1}. ${ans.enunciado.substring(0, 100)}${ans.enunciado.length > 100 ? '...' : ''}
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+          <span>Tu elección: <b style="color: ${ans.isCorrect ? 'var(--success)' : 'var(--danger)'}">${ans.seleccionada}</b></span> | 
+          <span>Respuesta correcta: <b style="color: var(--success);">${ans.correcta}</b></span>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function toggleReviewDetails() {
+    const list = document.getElementById('review-list');
+    list.style.display = (list.style.display === 'none') ? 'block' : 'none';
+  }
+
+  function restartGame() {
+    document.getElementById('screen-results').style.display = 'none';
+    document.getElementById('screen-welcome').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>

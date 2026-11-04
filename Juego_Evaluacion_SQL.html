@@ -1825,17 +1825,73 @@
     "svg": "<svg viewBox=\"0 0 120 120\" width=\"105\" height=\"105\" xmlns=\"http://www.w3.org/2000/svg\">\n  <path d=\"M20,50 Q16,14 60,14 Q104,14 100,50 Q96,80 88,86 Q60,60 32,86 Q24,80 20,50 Z\" fill=\"#0f172a\"/>\n  <ellipse cx=\"60\" cy=\"65\" rx=\"36\" ry=\"32\" fill=\"#38bdf8\"/>\n  <path d=\"M32,46 Q40,36 48,42 Q52,38 56,44\" stroke=\"#ffffff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n  <path d=\"M88,46 Q80,36 72,42 Q68,38 64,44\" stroke=\"#ffffff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"44\" cy=\"54\" rx=\"4\" ry=\"4\" fill=\"#0f172a\"/>\n  <circle cx=\"45\" cy=\"53\" r=\"1.5\" fill=\"#ffffff\"/>\n  <ellipse cx=\"76\" cy=\"54\" rx=\"4\" ry=\"4\" fill=\"#0f172a\"/>\n  <circle cx=\"77\" cy=\"53\" r=\"1.5\" fill=\"#ffffff\"/>\n  <ellipse cx=\"60\" cy=\"58\" rx=\"8\" ry=\"4\" fill=\"#0284c7\"/>\n  <path d=\"M40,74 Q60,84 80,74\" stroke=\"#0f172a\" stroke-width=\"3\" fill=\"none\"/>\n  <polygon points=\"46,74 50,66 54,75\" fill=\"#ffffff\" stroke=\"#0f172a\" stroke-width=\"1.5\"/>\n  <polygon points=\"66,75 70,66 74,74\" fill=\"#ffffff\" stroke=\"#0f172a\" stroke-width=\"1.5\"/>\n  <circle cx=\"60\" cy=\"88\" r=\"8\" fill=\"#dc2626\"/>\n  <circle cx=\"60\" cy=\"88\" r=\"4\" fill=\"#38bdf8\"/>\n</svg>"
   }
 ];
-  let lastCrewIndex = -1;
+    let barajaChistes = [];
+  let ultimoPersonajeId = null;
+
+  function inicializarBarajaPerfecta() {
+    const quotesPool = {};
+    MUGIWARA_CREW.forEach(c => {
+      quotesPool[c.id] = [...c.quotes];
+      for (let i = quotesPool[c.id].length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [quotesPool[c.id][i], quotesPool[c.id][j]] = [quotesPool[c.id][j], quotesPool[c.id][i]];
+      }
+    });
+
+    const baraja = [];
+    let ultimoIdRonda = null;
+
+    let quedenFrases = true;
+    while (quedenFrases) {
+      const disponibles = MUGIWARA_CREW.filter(c => quotesPool[c.id].length > 0).map(c => c.id);
+      if (disponibles.length === 0) break;
+
+      for (let i = disponibles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [disponibles[i], disponibles[j]] = [disponibles[j], disponibles[i]];
+      }
+
+      if (disponibles.length > 1 && disponibles[0] === ultimoIdRonda) {
+        const temp = disponibles[0];
+        disponibles[0] = disponibles[disponibles.length - 1];
+        disponibles[disponibles.length - 1] = temp;
+      }
+
+      disponibles.forEach(charId => {
+        const quote = quotesPool[charId].pop();
+        baraja.push({ charId, quote });
+        ultimoIdRonda = charId;
+      });
+    }
+
+    barajaChistes = baraja;
+  }
+
+  function obtenerSiguienteChiste() {
+    if (!barajaChistes || barajaChistes.length === 0) {
+      inicializarBarajaPerfecta();
+    }
+
+    let idx = 0;
+    if (barajaChistes.length > 1 && barajaChistes[0].charId === ultimoPersonajeId) {
+      for (let i = 1; i < barajaChistes.length; i++) {
+        if (barajaChistes[i].charId !== ultimoPersonajeId) {
+          idx = i;
+          break;
+        }
+      }
+    }
+
+    const [item] = barajaChistes.splice(idx, 1);
+    ultimoPersonajeId = item.charId;
+    const char = MUGIWARA_CREW.find(c => c.id === item.charId);
+    return { char, quote: item.quote };
+  }
 
   function mostrarFalloMugiwara(correctLetter) {
-    let crewIdx;
-    do {
-      crewIdx = Math.floor(Math.random() * MUGIWARA_CREW.length);
-    } while (crewIdx === lastCrewIndex && MUGIWARA_CREW.length > 1);
-    lastCrewIndex = crewIdx;
-
-    const char = MUGIWARA_CREW[crewIdx];
-    const randomQuote = char.quotes[Math.floor(Math.random() * char.quotes.length)];
+    const itemChiste = obtenerSiguienteChiste();
+    const char = itemChiste.char;
+    const randomQuote = itemChiste.quote;
 
     playSound(char.sound);
 
@@ -2054,6 +2110,7 @@
     userAnswers = [];
     totalSeconds = 0;
     answeredCurrent = false;
+    inicializarBarajaPerfecta();
 
     updateHUD();
 

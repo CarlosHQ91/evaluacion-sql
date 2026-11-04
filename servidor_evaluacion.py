@@ -971,8 +971,69 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
 
   const STORAGE_KEY = "sql_exam_active_session";
 
-  const MUGIWARA_CREW = {json.dumps(MUGIWARA_CREW_DATA, ensure_ascii=False)};
-  let lastCrewIndex = -1;
+    const MUGIWARA_CREW = {json.dumps(MUGIWARA_CREW_DATA, ensure_ascii=False)};
+  let barajaChistes = [];
+  let ultimoPersonajeId = null;
+
+  function inicializarBarajaPerfecta() {{
+    const quotesPool = {{}};
+    MUGIWARA_CREW.forEach(c => {{
+      quotesPool[c.id] = [...c.quotes];
+      for (let i = quotesPool[c.id].length - 1; i > 0; i--) {{
+        const j = Math.floor(Math.random() * (i + 1));
+        [quotesPool[c.id][i], quotesPool[c.id][j]] = [quotesPool[c.id][j], quotesPool[c.id][i]];
+      }}
+    }});
+
+    const baraja = [];
+    let ultimoIdRonda = null;
+
+    let quedenFrases = true;
+    while (quedenFrases) {{
+      const disponibles = MUGIWARA_CREW.filter(c => quotesPool[c.id].length > 0).map(c => c.id);
+      if (disponibles.length === 0) break;
+
+      for (let i = disponibles.length - 1; i > 0; i--) {{
+        const j = Math.floor(Math.random() * (i + 1));
+        [disponibles[i], disponibles[j]] = [disponibles[j], disponibles[i]];
+      }}
+
+      if (disponibles.length > 1 && disponibles[0] === ultimoIdRonda) {{
+        const temp = disponibles[0];
+        disponibles[0] = disponibles[disponibles.length - 1];
+        disponibles[disponibles.length - 1] = temp;
+      }}
+
+      disponibles.forEach(charId => {{
+        const quote = quotesPool[charId].pop();
+        baraja.push({{ charId, quote }});
+        ultimoIdRonda = charId;
+      }});
+    }}
+
+    barajaChistes = baraja;
+  }}
+
+  function obtenerSiguienteChiste() {{
+    if (!barajaChistes || barajaChistes.length === 0) {{
+      inicializarBarajaPerfecta();
+    }}
+
+    let idx = 0;
+    if (barajaChistes.length > 1 && barajaChistes[0].charId === ultimoPersonajeId) {{
+      for (let i = 1; i < barajaChistes.length; i++) {{
+        if (barajaChistes[i].charId !== ultimoPersonajeId) {{
+          idx = i;
+          break;
+        }}
+      }}
+    }}
+
+    const [item] = barajaChistes.splice(idx, 1);
+    ultimoPersonajeId = item.charId;
+    const char = MUGIWARA_CREW.find(c => c.id === item.charId);
+    return {{ char, quote: item.quote }};
+  }}
 
   // ADVERTENCIA AL INTENTAR SALIR O RECARGAR
   window.addEventListener("beforeunload", function (e) {{
@@ -1003,6 +1064,12 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
                 currentIndex = state.currentIndex || 0;
                 userAnswers = state.userAnswers || [];
                 totalSeconds = state.totalSeconds || 0;
+                if (state.barajaChistes && state.barajaChistes.length > 0) {{
+                  barajaChistes = state.barajaChistes;
+                  ultimoPersonajeId = state.ultimoPersonajeId || null;
+                }} else {{
+                  inicializarBarajaPerfecta();
+                }}
                 
                 document.getElementById("hud-name").innerText = studentName;
                 document.getElementById("hud-id").innerText = studentId;
@@ -1032,6 +1099,8 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
       currentIndex: currentIndex,
       userAnswers: userAnswers,
       totalSeconds: totalSeconds,
+      barajaChistes: barajaChistes,
+      ultimoPersonajeId: ultimoPersonajeId,
       timestamp: Date.now()
     }};
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -1277,6 +1346,7 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
         userAnswers = [];
         totalSeconds = 0;
         examenEnCurso = true;
+        inicializarBarajaPerfecta();
 
         guardarEstadoLocal();
         iniciarCronometro();

@@ -83,6 +83,27 @@ def _es_sesion_valida(handler):
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PREGUNTAS_FILE = os.path.join(BASE_DIR, "preguntas.json")
 RESULTADOS_FILE = os.path.join(BASE_DIR, "resultados_evaluacion.json")
+CONFIG_FILE = os.path.join(BASE_DIR, "config_docente.json")
+
+def obtener_pin_docente():
+    """Obtiene el PIN actual del docente desde config_docente.json, variable de entorno o por defecto."""
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                pin = data.get("pin")
+                if pin:
+                    return str(pin).strip()
+        except Exception:
+            pass
+    return os.environ.get("PIN_DOCENTE", "Carlos.26")
+
+def guardar_pin_docente(nuevo_pin):
+    """Guarda el nuevo PIN en el archivo de configuración."""
+    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        json.dump({"pin": nuevo_pin}, f, ensure_ascii=False, indent=2)
+
+PIN_DOCENTE = obtener_pin_docente()
 
 # Asegurar archivo de resultados
 if not os.path.exists(RESULTADOS_FILE):
@@ -1898,6 +1919,7 @@ HTML_DOCENTE_DASHBOARD = '''<!DOCTYPE html>
       <div style="display: flex; gap: 12px; flex-wrap: wrap;">
         <button class="btn btn-soft" onclick="cargarResultados()">🔄 Actualizar</button>
         <a href="/api/exportar_csv" class="btn btn-primary">📥 Exportar a Excel (CSV)</a>
+        <button class="btn btn-soft" onclick="abrirModalPIN()">🔑 Cambiar Clave</button>
         <button class="btn btn-danger" onclick="limpiarResultados()">🗑️ Limpiar Todo</button>
         <button class="btn btn-soft" onclick="cerrarSesion()" title="Cerrar sesión">🚪 Salir</button>
       </div>
@@ -1970,6 +1992,38 @@ HTML_DOCENTE_DASHBOARD = '''<!DOCTYPE html>
       <button class="btn btn-soft" style="padding: 8px 16px;" onclick="cerrarModal()">✕ Cerrar</button>
     </div>
     <div id="modal-questions-list"></div>
+  </div>
+</div>
+
+<!-- MODAL CAMBIAR PIN -->
+<div id="pin-modal" class="modal-backdrop">
+  <div class="modal-box" style="max-width: 440px;">
+    <div class="modal-header">
+      <div>
+        <h2 style="font-size: 1.35rem; font-weight: 800;">🔑 Cambiar Clave</h2>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">Actualiza el PIN para entrar al panel docente.</p>
+      </div>
+      <button class="btn btn-soft" style="padding: 8px 16px;" onclick="cerrarModalPIN()">✕</button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 8px;">
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #4a5568; margin-bottom: 6px; text-transform: uppercase;">PIN Actual</label>
+        <input type="password" id="pin-actual" placeholder="Clave actual" style="width: 100%; padding: 12px 16px; border: none; border-radius: var(--radius-md); background: var(--card-bg); font-size: 1rem; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); outline: none;">
+      </div>
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #4a5568; margin-bottom: 6px; text-transform: uppercase;">Nuevo PIN</label>
+        <input type="password" id="pin-nuevo" placeholder="Mínimo 4 caracteres" style="width: 100%; padding: 12px 16px; border: none; border-radius: var(--radius-md); background: var(--card-bg); font-size: 1rem; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); outline: none;">
+      </div>
+      <div>
+        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #4a5568; margin-bottom: 6px; text-transform: uppercase;">Confirmar Nuevo PIN</label>
+        <input type="password" id="pin-confirmar" placeholder="Repite la nueva clave" style="width: 100%; padding: 12px 16px; border: none; border-radius: var(--radius-md); background: var(--card-bg); font-size: 1rem; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); outline: none;">
+      </div>
+      <div id="pin-error-msg" style="color: var(--danger); font-size: 0.88rem; font-weight: 700; display: none;"></div>
+      <div id="pin-success-msg" style="color: var(--success); font-size: 0.88rem; font-weight: 700; display: none;"></div>
+      <button id="btn-guardar-pin" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; margin-top: 6px;" onclick="guardarNuevoPIN()">
+        <span>Actualizar Clave</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -2118,6 +2172,80 @@ HTML_DOCENTE_DASHBOARD = '''<!DOCTYPE html>
       .then(() => { window.location.href = "/docente"; })
       .catch(() => { window.location.href = "/docente"; });
   }
+
+  function abrirModalPIN() {
+    document.getElementById("pin-actual").value = "";
+    document.getElementById("pin-nuevo").value = "";
+    document.getElementById("pin-confirmar").value = "";
+    document.getElementById("pin-error-msg").style.display = "none";
+    document.getElementById("pin-success-msg").style.display = "none";
+    document.getElementById("pin-modal").style.display = "flex";
+    document.getElementById("pin-actual").focus();
+  }
+
+  function cerrarModalPIN() {
+    document.getElementById("pin-modal").style.display = "none";
+  }
+
+  function guardarNuevoPIN() {
+    const actual = document.getElementById("pin-actual").value.trim();
+    const nuevo = document.getElementById("pin-nuevo").value.trim();
+    const confirmar = document.getElementById("pin-confirmar").value.trim();
+    const errBox = document.getElementById("pin-error-msg");
+    const okBox = document.getElementById("pin-success-msg");
+
+    errBox.style.display = "none";
+    okBox.style.display = "none";
+
+    if (!actual || !nuevo || !confirmar) {
+      errBox.innerText = "Por favor completa todos los campos.";
+      errBox.style.display = "block";
+      return;
+    }
+
+    if (nuevo !== confirmar) {
+      errBox.innerText = "El nuevo PIN y su confirmación no coinciden.";
+      errBox.style.display = "block";
+      return;
+    }
+
+    if (nuevo.length < 4) {
+      errBox.innerText = "El nuevo PIN debe tener al menos 4 caracteres.";
+      errBox.style.display = "block";
+      return;
+    }
+
+    const btn = document.getElementById("btn-guardar-pin");
+    btn.disabled = true;
+    btn.innerHTML = "<span>Guardando...</span>";
+
+    fetch("/api/cambiar_pin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin_actual: actual, nuevo_pin: nuevo }),
+      credentials: "same-origin"
+    })
+    .then(async res => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al cambiar el PIN");
+      return data;
+    })
+    .then(data => {
+      okBox.innerText = "✓ ¡Clave actualizada con éxito!";
+      okBox.style.display = "block";
+      setTimeout(() => {
+        cerrarModalPIN();
+        btn.disabled = false;
+        btn.innerHTML = "<span>Actualizar Clave</span>";
+      }, 1500);
+    })
+    .catch(err => {
+      errBox.innerText = err.message || "Error al cambiar el PIN";
+      errBox.style.display = "block";
+      btn.disabled = false;
+      btn.innerHTML = "<span>Actualizar Clave</span>";
+    });
+  }
 </script>
 
 </body>
@@ -2257,7 +2385,8 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
                 pin_recibido = ""
 
             # Comparación segura (timing-safe) del PIN
-            if hmac.compare_digest(pin_recibido, PIN_DOCENTE):
+            pin_esperado = obtener_pin_docente()
+            if hmac.compare_digest(pin_recibido, pin_esperado):
                 token = _generar_token_sesion()
                 print(f" [DOCENTE] Sesión iniciada exitosamente.")
                 self.send_response(200)
@@ -2273,6 +2402,35 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(b'{"error": "PIN incorrecto"}')
+
+        elif path == "/api/cambiar_pin":
+            # --- ENDPOINT PARA CAMBIAR EL PIN DEL DOCENTE ---
+            if not _es_sesion_valida(self):
+                self._enviar_no_autorizado()
+                return
+
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length).decode("utf-8")
+            try:
+                data = json.loads(body)
+                pin_actual = data.get("pin_actual", "").strip()
+                nuevo_pin = data.get("nuevo_pin", "").strip()
+            except Exception:
+                pin_actual = ""
+                nuevo_pin = ""
+
+            pin_esperado = obtener_pin_docente()
+            if not hmac.compare_digest(pin_actual, pin_esperado):
+                self._enviar_respuesta_json(400, {"error": "El PIN actual es incorrecto."})
+                return
+
+            if len(nuevo_pin) < 4:
+                self._enviar_respuesta_json(400, {"error": "El nuevo PIN debe tener al menos 4 caracteres."})
+                return
+
+            guardar_pin_docente(nuevo_pin)
+            print(" [DOCENTE] PIN de acceso actualizado exitosamente por el docente.")
+            self._enviar_respuesta_json(200, {"status": "ok", "message": "Clave actualizada exitosamente."})
 
         elif path == "/api/logout_docente":
             # --- ENDPOINT DE CIERRE DE SESIÓN ---
@@ -2349,7 +2507,7 @@ def main():
     print(f"     (o http://localhost:{PORT}/ si pruebas en esta misma PC)")
     print(f"\n  🔐 PANEL DE CONTROL DEL DOCENTE (Resultados en Vivo):")
     print(f"     http://localhost:{PORT}/docente")
-    print(f"     PIN de Acceso: {PIN_DOCENTE}")
+    print(f"     PIN de Acceso: {obtener_pin_docente()}")
     print(f"     🛡️  Autenticación blindada con sesiones server-side + cookie HttpOnly")
     print(f"\n  📁 Los resultados se guardan automáticamente en:")
     print(f"     {RESULTADOS_FILE}")

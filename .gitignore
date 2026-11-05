@@ -3,3 +3,4 @@ __pycache__/
 *$py.class
 scratch/
 *.docx
+config_docente.json

@@ -14,6 +14,10 @@ import json
 import socket
 import csv
 import io
+import secrets
+import hashlib
+import hmac
+import time
 from datetime import datetime
 try:
     from http.server import ThreadingHTTPServer as ServerClass
@@ -21,9 +25,61 @@ except ImportError:
     from http.server import HTTPServer as ServerClass
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
+from http.cookies import SimpleCookie
 
 PORT = int(os.environ.get("PORT", 8000))
-PIN_DOCENTE = "Carlos.26"
+PIN_DOCENTE = os.environ.get("PIN_DOCENTE", "Carlos.26")
+
+# --- Sistema de sesiones server-side ---
+# Almacena tokens de sesión válidos: {token: timestamp_creación}
+_active_sessions = {}
+_SESSION_COOKIE_NAME = "docente_session"
+_SESSION_MAX_AGE = 8 * 3600  # 8 horas de duración
+
+def _generar_token_sesion():
+    """Genera un token de sesión criptográficamente seguro."""
+    token = secrets.token_urlsafe(48)
+    _active_sessions[token] = time.time()
+    # Limpiar sesiones expiradas
+    _limpiar_sesiones_expiradas()
+    return token
+
+def _limpiar_sesiones_expiradas():
+    """Elimina sesiones que superaron el tiempo máximo."""
+    ahora = time.time()
+    expiradas = [t for t, ts in _active_sessions.items() if ahora - ts > _SESSION_MAX_AGE]
+    for t in expiradas:
+        del _active_sessions[t]
+
+def _validar_sesion(token):
+    """Valida que el token de sesión sea válido y no haya expirado."""
+    if not token or token not in _active_sessions:
+        return False
+    if time.time() - _active_sessions[token] > _SESSION_MAX_AGE:
+        del _active_sessions[token]
+        return False
+    return True
+
+def _invalidar_sesion(token):
+    """Invalida un token de sesión (logout)."""
+    _active_sessions.pop(token, None)
+
+def _obtener_token_de_cookie(handler):
+    """Extrae el token de sesión de la cookie del request."""
+    cookie_header = handler.headers.get("Cookie", "")
+    cookie = SimpleCookie()
+    try:
+        cookie.load(cookie_header)
+    except Exception:
+        return None
+    if _SESSION_COOKIE_NAME in cookie:
+        return cookie[_SESSION_COOKIE_NAME].value
+    return None
+
+def _es_sesion_valida(handler):
+    """Verifica si el request tiene una sesión válida."""
+    token = _obtener_token_de_cookie(handler)
+    return _validar_sesion(token)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PREGUNTAS_FILE = os.path.join(BASE_DIR, "preguntas.json")
 RESULTADOS_FILE = os.path.join(BASE_DIR, "resultados_evaluacion.json")
@@ -1551,9 +1607,11 @@ HTML_ALUMNO = f'''<!DOCTYPE html>
 '''
 
 # ==============================================================================
-# PLANTILLA HTML PANEL DOCENTE — CON BOTÓN "PERMITIR REINTENTO"
+# PLANTILLA HTML PANEL DOCENTE — CON AUTENTICACIÓN SERVER-SIDE
 # ==============================================================================
-HTML_DOCENTE = f'''<!DOCTYPE html>
+
+# --- HTML del LOGIN (lo que ve CUALQUIERA que acceda a /docente sin sesión) ---
+HTML_DOCENTE_LOGIN = '''<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -1563,7 +1621,143 @@ HTML_DOCENTE = f'''<!DOCTYPE html>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root {{
+    :root {
+      --bg: #e9ecf4;
+      --card-bg: #e9ecf4;
+      --shadow-light: #ffffff;
+      --shadow-dark: #c8d0e0;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      --primary-color: #5551ff;
+      --text-main: #2d3748;
+      --text-muted: #718096;
+      --radius-lg: 26px;
+      --radius-md: 16px;
+      --radius-pill: 9999px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 34px 20px;
+    }
+    .login-container {
+      max-width: 440px;
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 44px 36px;
+      text-align: center;
+      box-shadow: 14px 14px 32px var(--shadow-dark), -14px -14px 32px var(--shadow-light);
+    }
+    .login-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      margin: 0 auto 20px auto;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      background: var(--card-bg);
+      box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+    }
+    .input-pin-clear {
+      width: 100%; padding: 16px 20px;
+      background: var(--card-bg); border: none; outline: none;
+      border-radius: var(--radius-md);
+      color: #1a202c; font-size: 1.25rem; font-weight: 700;
+      text-align: center; margin-bottom: 24px; letter-spacing: 0.08em;
+      box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+      font-family: inherit;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-radius: var(--radius-pill);
+      font-size: 0.92rem; font-weight: 700; cursor: pointer;
+      border: none; outline: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit; text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--primary-gradient); color: #fff;
+      box-shadow: 6px 6px 14px rgba(79, 70, 229, 0.35), -4px -4px 10px var(--shadow-light);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 8px 8px 18px rgba(79, 70, 229, 0.45); }
+    .btn-primary:active { box-shadow: inset 3px 3px 6px rgba(0,0,0,0.3); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .error-msg {
+      color: #dc2626; font-weight: 700; font-size: 0.9rem;
+      margin-top: 14px; display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="login-container">
+  <div class="login-icon">🔐</div>
+  <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 8px;">Panel del Docente</h2>
+  <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">Ingresa la clave de acceso para ver las calificaciones en tiempo real.</p>
+  <input type="password" id="input-pin" placeholder="Ingresa PIN" class="input-pin-clear" autofocus autocomplete="off">
+  <button id="btn-login" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 16px;" onclick="verificarPIN()">
+    <span>Acceder al Panel</span>
+    <span>➔</span>
+  </button>
+  <div id="error-msg" class="error-msg">Clave incorrecta. Intenta de nuevo.</div>
+</div>
+<script>
+  /* El PIN NUNCA está en este HTML. La verificación es 100% server-side. */
+  document.getElementById("input-pin").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") verificarPIN();
+  });
+
+  function verificarPIN() {
+    const val = document.getElementById("input-pin").value.trim();
+    if (!val) return;
+    const btn = document.getElementById("btn-login");
+    btn.disabled = true;
+    btn.innerHTML = "<span>Verificando...</span>";
+    document.getElementById("error-msg").style.display = "none";
+
+    fetch("/api/login_docente", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({pin: val}),
+      credentials: "same-origin"
+    })
+    .then(res => {
+      if (res.ok) {
+        /* El servidor estableció la cookie HttpOnly. Redirigir al dashboard. */
+        window.location.href = "/docente";
+      } else {
+        document.getElementById("error-msg").style.display = "block";
+        document.getElementById("input-pin").value = "";
+        document.getElementById("input-pin").focus();
+        btn.disabled = false;
+        btn.innerHTML = "<span>Acceder al Panel</span><span>➔</span>";
+      }
+    })
+    .catch(() => {
+      alert("Error de conexión con el servidor.");
+      btn.disabled = false;
+      btn.innerHTML = "<span>Acceder al Panel</span><span>➔</span>";
+    });
+  }
+</script>
+</body>
+</html>'''
+
+# --- HTML del DASHBOARD (SOLO se envía si la sesión es válida en el servidor) ---
+HTML_DOCENTE_DASHBOARD = '''<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel del Docente — Auditoría de Sistemas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
       --bg: #e9ecf4;
       --card-bg: #e9ecf4;
       --shadow-light: #ffffff;
@@ -1578,313 +1772,124 @@ HTML_DOCENTE = f'''<!DOCTYPE html>
       --radius-lg: 26px;
       --radius-md: 16px;
       --radius-pill: 9999px;
-    }}
+    }
 
-    * {{
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-font-smoothing: antialiased;
-    }}
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 
-    body {{
+    body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text-main);
       min-height: 100vh;
       padding: 34px 20px;
-    }}
+    }
 
-    .container {{
-      max-width: 1200px;
-      margin: 0 auto;
-    }}
+    .container { max-width: 1200px; margin: 0 auto; }
 
-    .header {{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-      gap: 18px;
-    }}
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 30px; flex-wrap: wrap; gap: 18px;
+    }
 
-    .title {{
-      font-size: 1.9rem;
-      font-weight: 800;
-      color: #1a202c;
-      letter-spacing: -0.02em;
-    }}
+    .title { font-size: 1.9rem; font-weight: 800; color: #1a202c; letter-spacing: -0.02em; }
+    .subtitle { font-size: 0.98rem; color: var(--text-muted); margin-top: 4px; }
 
-    .subtitle {{
-      font-size: 0.98rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }}
-
-    .btn {{
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
-      border-radius: var(--radius-pill);
-      font-size: 0.92rem;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      outline: none;
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-radius: var(--radius-pill);
+      font-size: 0.92rem; font-weight: 700; cursor: pointer;
+      border: none; outline: none;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      font-family: inherit;
-      text-decoration: none;
-    }}
-
-    .btn-primary {{
-      background: var(--primary-gradient);
-      color: #fff;
+      font-family: inherit; text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--primary-gradient); color: #fff;
       box-shadow: 6px 6px 14px rgba(79, 70, 229, 0.35), -4px -4px 10px var(--shadow-light);
-    }}
-    .btn-primary:hover {{
-      transform: translateY(-2px);
-      box-shadow: 8px 8px 18px rgba(79, 70, 229, 0.45);
-    }}
-    .btn-primary:active {{
-      box-shadow: inset 3px 3px 6px rgba(0,0,0,0.3);
-    }}
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 8px 8px 18px rgba(79, 70, 229, 0.45); }
+    .btn-primary:active { box-shadow: inset 3px 3px 6px rgba(0,0,0,0.3); }
 
-    .btn-soft {{
-      background: var(--card-bg);
-      color: #4a5568;
+    .btn-soft {
+      background: var(--card-bg); color: #4a5568;
       box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light);
-    }}
-    .btn-soft:hover {{
-      color: var(--primary-color);
-      transform: translateY(-2px);
-    }}
+    }
+    .btn-soft:hover { color: var(--primary-color); transform: translateY(-2px); }
 
-    .btn-danger {{
-      background: var(--card-bg);
-      color: var(--danger);
+    .btn-danger {
+      background: var(--card-bg); color: var(--danger);
       box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light);
-    }}
+    }
 
-    .btn-action-unlock {{
-      background: var(--card-bg);
-      color: var(--warning);
+    .btn-action-unlock {
+      background: var(--card-bg); color: var(--warning);
       box-shadow: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
-      padding: 6px 12px;
-      font-size: 0.8rem;
-    }}
-    .btn-action-unlock:hover {{
-      color: #b45309;
-      transform: translateY(-1px);
-    }}
+      padding: 6px 12px; font-size: 0.8rem;
+    }
+    .btn-action-unlock:hover { color: #b45309; transform: translateY(-1px); }
 
-    .stats-grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-bottom: 32px;
-    }}
-
-    .stat-card {{
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px; margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--card-bg); border-radius: var(--radius-lg);
       padding: 24px 22px;
       box-shadow: 8px 8px 20px var(--shadow-dark), -8px -8px 20px var(--shadow-light);
-    }}
+    }
+    .stat-val { font-size: 2.3rem; font-weight: 800; color: #1a202c; line-height: 1.1; }
+    .stat-lbl { font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-top: 8px; letter-spacing: 0.05em; }
 
-    .stat-val {{
-      font-size: 2.3rem;
-      font-weight: 800;
-      color: #1a202c;
-      line-height: 1.1;
-    }}
-
-    .stat-lbl {{
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 700;
-      margin-top: 8px;
-      letter-spacing: 0.05em;
-    }}
-
-    .table-card {{
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
+    .table-card {
+      background: var(--card-bg); border-radius: var(--radius-lg);
       overflow: hidden;
       box-shadow: 12px 12px 28px var(--shadow-dark), -12px -12px 28px var(--shadow-light);
-    }}
+    }
+    .table-header {
+      padding: 24px 28px; display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.96rem; }
+    th {
+      padding: 16px 20px; background: #e2e6ef; font-size: 0.8rem;
+      text-transform: uppercase; letter-spacing: 0.06em; color: #4a5568;
+      font-weight: 800; box-shadow: inset 0 -2px 0 var(--shadow-dark);
+    }
+    td { padding: 16px 20px; border-bottom: 1px solid #dbe1ed; color: #2d3748; }
+    tr:hover td { background: rgba(255, 255, 255, 0.4); }
 
-    .table-header {{
-      padding: 24px 28px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }}
+    .badge-grade { display: inline-block; padding: 6px 14px; border-radius: var(--radius-pill); font-weight: 800; font-size: 0.95rem; }
+    .grade-high { background: rgba(16, 185, 129, 0.15); color: #059669; box-shadow: inset 1px 1px 3px rgba(16, 185, 129, 0.3); }
+    .grade-med { background: rgba(245, 158, 11, 0.15); color: #d97706; box-shadow: inset 1px 1px 3px rgba(245, 158, 11, 0.3); }
+    .grade-low { background: rgba(239, 68, 68, 0.15); color: #dc2626; box-shadow: inset 1px 1px 3px rgba(239, 68, 68, 0.3); }
 
-    table {{
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.96rem;
-    }}
-
-    th {{
-      padding: 16px 20px;
-      background: #e2e6ef;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #4a5568;
-      font-weight: 800;
-      box-shadow: inset 0 -2px 0 var(--shadow-dark);
-    }}
-
-    td {{
-      padding: 16px 20px;
-      border-bottom: 1px solid #dbe1ed;
-      color: #2d3748;
-    }}
-
-    tr:hover td {{
-      background: rgba(255, 255, 255, 0.4);
-    }}
-
-    .badge-grade {{
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: var(--radius-pill);
-      font-weight: 800;
-      font-size: 0.95rem;
-    }}
-
-    .grade-high {{
-      background: rgba(16, 185, 129, 0.15);
-      color: #059669;
-      box-shadow: inset 1px 1px 3px rgba(16, 185, 129, 0.3);
-    }}
-
-    .grade-med {{
-      background: rgba(245, 158, 11, 0.15);
-      color: #d97706;
-      box-shadow: inset 1px 1px 3px rgba(245, 158, 11, 0.3);
-    }}
-
-    .grade-low {{
-      background: rgba(239, 68, 68, 0.15);
-      color: #dc2626;
-      box-shadow: inset 1px 1px 3px rgba(239, 68, 68, 0.3);
-    }}
-
-    .modal-backdrop {{
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(200, 208, 224, 0.6);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 100;
-    }}
-
-    .modal-box {{
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      max-width: 820px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
+    .modal-backdrop {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(200, 208, 224, 0.6); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; z-index: 100;
+    }
+    .modal-box {
+      background: var(--card-bg); border-radius: var(--radius-lg);
+      max-width: 820px; width: 100%; max-height: 85vh; overflow-y: auto;
       padding: 34px;
       box-shadow: 20px 20px 50px var(--shadow-dark), -20px -20px 50px var(--shadow-light);
-    }}
-
-    .modal-header {{
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid #dbe1ed;
-    }}
-
-    .detail-item {{
-      background: var(--card-bg);
-      border-radius: var(--radius-md);
-      padding: 16px 20px;
-      margin-bottom: 14px;
-      font-size: 0.92rem;
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #dbe1ed;
+    }
+    .detail-item {
+      background: var(--card-bg); border-radius: var(--radius-md);
+      padding: 16px 20px; margin-bottom: 14px; font-size: 0.92rem;
       box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
-    }}
-
-    .detail-item.pass {{ border-left: 5px solid var(--success); }}
-    .detail-item.fail {{ border-left: 5px solid var(--danger); }}
-
-    .login-container {{
-      max-width: 440px;
-      margin: 80px auto;
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      padding: 44px 36px;
-      text-align: center;
-      box-shadow: 14px 14px 32px var(--shadow-dark), -14px -14px 32px var(--shadow-light);
-    }}
-
-    .login-icon {{
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin: 0 auto 20px auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      background: var(--card-bg);
-      box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
-    }}
-
-    .input-pin-clear {{
-      width: 100%;
-      padding: 16px 20px;
-      background: var(--card-bg);
-      border: none;
-      outline: none;
-      border-radius: var(--radius-md);
-      color: #1a202c;
-      font-size: 1.25rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 24px;
-      letter-spacing: 0.08em;
-      box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
-      font-family: inherit;
-    }}
+    }
+    .detail-item.pass { border-left: 5px solid var(--success); }
+    .detail-item.fail { border-left: 5px solid var(--danger); }
   </style>
 </head>
 <body>
 
 <div class="container">
-
-  <!-- LOGIN LOCK -->
-  <div id="login-panel" class="login-container" style="display: block;">
-    <div class="login-icon">🔐</div>
-    <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 8px;">Panel del Docente</h2>
-    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">Ingresa la clave de acceso para ver las calificaciones en tiempo real.</p>
-    
-    <input type="text" id="input-pin" placeholder="Ingresa PIN" class="input-pin-clear" autofocus>
-    
-    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 16px;" onclick="verificarPIN()">
-      <span>Acceder al Panel</span>
-      <span>➔</span>
-    </button>
-  </div>
-
-  <!-- DASHBOARD PRINCIPAL -->
-  <div id="dashboard-panel" style="display: none;">
-    
     <div class="header">
       <div>
         <h1 class="title">Resultados en Tiempo Real</h1>
@@ -1892,8 +1897,9 @@ HTML_DOCENTE = f'''<!DOCTYPE html>
       </div>
       <div style="display: flex; gap: 12px; flex-wrap: wrap;">
         <button class="btn btn-soft" onclick="cargarResultados()">🔄 Actualizar</button>
-        <a href="/api/exportar_csv?pin={PIN_DOCENTE}" class="btn btn-primary">📥 Exportar a Excel (CSV)</a>
+        <a href="/api/exportar_csv" class="btn btn-primary">📥 Exportar a Excel (CSV)</a>
         <button class="btn btn-danger" onclick="limpiarResultados()">🗑️ Limpiar Todo</button>
+        <button class="btn btn-soft" onclick="cerrarSesion()" title="Cerrar sesión">🚪 Salir</button>
       </div>
     </div>
 
@@ -1951,9 +1957,6 @@ HTML_DOCENTE = f'''<!DOCTYPE html>
         </table>
       </div>
     </div>
-
-  </div>
-
 </div>
 
 <!-- MODAL DETALLE EXAMEN ALUMNO -->
@@ -1971,57 +1974,38 @@ HTML_DOCENTE = f'''<!DOCTYPE html>
 </div>
 
 <script>
-  let sessionPin = sessionStorage.getItem("docente_pin") || "";
+  /* No hay PIN en este HTML. La autenticación es por cookie HttpOnly server-side. */
   let cachedResultados = [];
+  cargarResultados();
+  setInterval(cargarResultados, 4000);
 
-  if (sessionPin === "{PIN_DOCENTE}") {{
-    mostrarDashboard();
-  }}
-
-  function verificarPIN() {{
-    const val = document.getElementById("input-pin").value.trim();
-    if (val === "{PIN_DOCENTE}") {{
-      sessionStorage.setItem("docente_pin", val);
-      sessionPin = val;
-      mostrarDashboard();
-    }} else {{
-      alert("Clave incorrecta. Por favor verifica e intenta de nuevo.");
-    }}
-  }}
-
-  document.getElementById("input-pin").addEventListener("keydown", function(e) {{
-    if (e.key === "Enter") verificarPIN();
-  }});
-
-  function mostrarDashboard() {{
-    document.getElementById("login-panel").style.display = "none";
-    document.getElementById("dashboard-panel").style.display = "block";
-    cargarResultados();
-    setInterval(cargarResultados, 4000);
-  }}
-
-  function cargarResultados() {{
-    fetch(`/api/resultados?pin=${{sessionPin}}`)
-      .then(res => {{
-        if (!res.ok) throw new Error("No autorizado");
+  function cargarResultados() {
+    fetch("/api/resultados", {credentials: "same-origin"})
+      .then(res => {
+        if (res.status === 401) {
+          window.location.href = "/docente";
+          return null;
+        }
+        if (!res.ok) throw new Error("Error");
         return res.json();
-      }})
-      .then(data => {{
+      })
+      .then(data => {
+        if (!data) return;
         cachedResultados = data;
         renderizarTabla(data);
         actualizarKPIs(data);
-      }})
+      })
       .catch(err => console.warn("Error cargando resultados:", err));
-  }}
+  }
 
-  function actualizarKPIs(data) {{
+  function actualizarKPIs(data) {
     document.getElementById("kpi-total").innerText = data.length;
-    if (data.length === 0) {{
+    if (data.length === 0) {
       document.getElementById("kpi-avg").innerText = "0.0";
       document.getElementById("kpi-max").innerText = "0.0";
       document.getElementById("kpi-pass").innerText = "0%";
       return;
-    }}
+    }
 
     const notas = data.map(d => parseFloat(d.nota));
     const suma = notas.reduce((a, b) => a + b, 0);
@@ -2032,103 +2016,115 @@ HTML_DOCENTE = f'''<!DOCTYPE html>
 
     document.getElementById("kpi-avg").innerText = avg;
     document.getElementById("kpi-max").innerText = max;
-    document.getElementById("kpi-pass").innerText = `${{passRate}}%`;
-  }}
+    document.getElementById("kpi-pass").innerText = `${passRate}%`;
+  }
 
-  function renderizarTabla(data) {{
+  function renderizarTabla(data) {
     const tbody = document.getElementById("alumnos-tbody");
-    if (data.length === 0) {{
+    if (data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 34px;">Aún no hay evaluaciones entregadas.</td></tr>`;
       return;
-    }}
+    }
 
     const sorted = [...data].sort((a, b) => b.nota - a.nota);
 
-    tbody.innerHTML = sorted.map((item, idx) => {{
+    tbody.innerHTML = sorted.map((item, idx) => {
       let gradeClass = "grade-high";
       if (item.nota < 6.0) gradeClass = "grade-low";
       else if (item.nota < 8.0) gradeClass = "grade-med";
 
       return `
         <tr>
-          <td style="font-weight: 800; color: var(--text-muted);">${{idx + 1}}</td>
-          <td style="font-weight: 700; color: #1a202c;">${{item.nombre}}</td>
-          <td><span style="font-family: 'JetBrains Mono', monospace; background: #e2e6ef; padding: 4px 10px; border-radius: 8px; font-weight: 600;">${{item.carne}}</span></td>
-          <td><span class="badge-grade ${{gradeClass}}">${{item.nota.toFixed(1)}} / 10</span></td>
-          <td style="font-weight: 600;">${{item.aciertos}} / ${{item.total_preguntas}}</td>
-          <td style="font-weight: 700; color: var(--primary-color);">${{item.porcentaje}}%</td>
-          <td style="color: var(--text-muted);">${{item.tiempo}}</td>
-          <td style="font-size: 0.85rem; color: var(--text-muted);">${{item.fecha_hora}}</td>
+          <td style="font-weight: 800; color: var(--text-muted);">${idx + 1}</td>
+          <td style="font-weight: 700; color: #1a202c;">${item.nombre}</td>
+          <td><span style="font-family: 'JetBrains Mono', monospace; background: #e2e6ef; padding: 4px 10px; border-radius: 8px; font-weight: 600;">${item.carne}</span></td>
+          <td><span class="badge-grade ${gradeClass}">${item.nota.toFixed(1)} / 10</span></td>
+          <td style="font-weight: 600;">${item.aciertos} / ${item.total_preguntas}</td>
+          <td style="font-weight: 700; color: var(--primary-color);">${item.porcentaje}%</td>
+          <td style="color: var(--text-muted);">${item.tiempo}</td>
+          <td style="font-size: 0.85rem; color: var(--text-muted);">${item.fecha_hora}</td>
           <td style="display: flex; gap: 8px; align-items: center;">
-            <button class="btn btn-soft" style="padding: 6px 12px; font-size: 0.82rem;" onclick="verDetalle('${{item.carne}}')">
+            <button class="btn btn-soft" style="padding: 6px 12px; font-size: 0.82rem;" onclick="verDetalle('${item.carne}')">
               👁️ Ver
             </button>
-            <button class="btn btn-action-unlock" title="Permitir que este alumno vuelva a hacer el examen" onclick="desbloquearAlumno('${{item.carne}}', '${{item.nombre}}')">
+            <button class="btn btn-action-unlock" title="Permitir que este alumno vuelva a hacer el examen" onclick="desbloquearAlumno('${item.carne}', '${item.nombre}')">
               🔓 Reintento
             </button>
           </td>
         </tr>
       `;
-    }}).join("");
-  }}
+    }).join("");
+  }
 
-  function verDetalle(carne) {{
+  function verDetalle(carne) {
     const alumno = cachedResultados.find(r => r.carne === carne);
     if (!alumno) return;
 
-    document.getElementById("modal-student-name").innerText = `${{alumno.nombre}} — Nota: ${{alumno.nota}} / 10`;
-    document.getElementById("modal-student-sub").innerText = `Carné: ${{alumno.carne}} • Aciertos: ${{alumno.aciertos}} / ${{alumno.total_preguntas}} (${{alumno.porcentaje}}%) • Tiempo: ${{alumno.tiempo}}`;
+    document.getElementById("modal-student-name").innerText = `${alumno.nombre} — Nota: ${alumno.nota} / 10`;
+    document.getElementById("modal-student-sub").innerText = `Carné: ${alumno.carne} • Aciertos: ${alumno.aciertos} / ${alumno.total_preguntas} (${alumno.porcentaje}%) • Tiempo: ${alumno.tiempo}`;
 
     const list = document.getElementById("modal-questions-list");
     list.innerHTML = (alumno.respuestas || []).map((ans, idx) => `
-      <div class="detail-item ${{ans.isCorrect ? 'pass' : 'fail'}}">
+      <div class="detail-item ${ans.isCorrect ? 'pass' : 'fail'}">
         <div style="font-weight: 700; margin-bottom: 6px; color: #1a202c;">
-          ${{idx + 1}}. ${{ans.enunciado}}
+          ${idx + 1}. ${ans.enunciado}
         </div>
         <div style="display: flex; gap: 16px; font-size: 0.88rem; margin-top: 8px; flex-wrap: wrap;">
-          <span>Respuesta Alumno: <b style="color: ${{ans.isCorrect ? 'var(--success)' : 'var(--danger)'}}">${{ans.seleccionada}}</b></span>
-          <span>Correcta: <b style="color: var(--success);">${{ans.correcta}}</b></span>
-          <span style="font-weight: 700; color: ${{ans.isCorrect ? 'var(--success)' : 'var(--danger)'}};">${{ans.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}}</span>
+          <span>Respuesta Alumno: <b style="color: ${ans.isCorrect ? 'var(--success)' : 'var(--danger)'}">${ans.seleccionada}</b></span>
+          <span>Correcta: <b style="color: var(--success);">${ans.correcta}</b></span>
+          <span style="font-weight: 700; color: ${ans.isCorrect ? 'var(--success)' : 'var(--danger)'};">${ans.isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</span>
         </div>
       </div>
     `).join("");
 
     document.getElementById("detail-modal").style.display = "flex";
-  }}
+  }
 
-  function cerrarModal() {{
+  function cerrarModal() {
     document.getElementById("detail-modal").style.display = "none";
-  }}
+  }
 
-  function desbloquearAlumno(carne, nombre) {{
-    if (!confirm(`¿Deseas permitir un reintento al estudiante ${{nombre}} (${{carne}})?\\n\\nSu nota actual será eliminada del servidor para que pueda ingresar nuevamente desde el inicio.`)) return;
+  function desbloquearAlumno(carne, nombre) {
+    if (!confirm(`¿Deseas permitir un reintento al estudiante ${nombre} (${carne})?\n\nSu nota actual será eliminada del servidor para que pueda ingresar nuevamente desde el inicio.`)) return;
 
-    fetch(`/api/permitir_reintento?carne=${{encodeURIComponent(carne)}}&pin=${{sessionPin}}`, {{ method: "POST" }})
-      .then(res => res.json())
-      .then(data => {{
-        if (data.status === "unlocked") {{
-          alert(`✓ Reintento habilitado para ${{nombre}}. Ahora puede ingresar nuevamente su carné y realizar el examen.`);
+    fetch(`/api/permitir_reintento?carne=${encodeURIComponent(carne)}`, { method: "POST", credentials: "same-origin" })
+      .then(res => {
+        if (res.status === 401) { window.location.href = "/docente"; return null; }
+        return res.json();
+      })
+      .then(data => {
+        if (!data) return;
+        if (data.status === "unlocked") {
+          alert(`✓ Reintento habilitado para ${nombre}. Ahora puede ingresar nuevamente su carné y realizar el examen.`);
           cargarResultados();
-        }}
-      }})
+        }
+      })
       .catch(err => alert("Error al autorizar reintento: " + err));
-  }}
+  }
 
-  function limpiarResultados() {{
+  function limpiarResultados() {
     if (!confirm("¿Estás seguro de que deseas reiniciar todos los registros de evaluación? Esta acción no se puede deshacer.")) return;
-    fetch(`/api/limpiar_resultados?pin=${{sessionPin}}`, {{ method: "POST" }})
-      .then(res => res.json())
+    fetch("/api/limpiar_resultados", { method: "POST", credentials: "same-origin" })
+      .then(res => {
+        if (res.status === 401) { window.location.href = "/docente"; return null; }
+        return res.json();
+      })
       .then(() => cargarResultados())
       .catch(err => alert("Error al limpiar: " + err));
-  }}
+  }
+
+  function cerrarSesion() {
+    fetch("/api/logout_docente", { method: "POST", credentials: "same-origin" })
+      .then(() => { window.location.href = "/docente"; })
+      .catch(() => { window.location.href = "/docente"; });
+  }
 </script>
 
 </body>
-</html>
-'''
+</html>'''
 
 # ==============================================================================
-# HTTP REQUEST HANDLER
+# HTTP REQUEST HANDLER — AUTENTICACIÓN POR SESIÓN (COOKIE HttpOnly)
 # ==============================================================================
 class EvaluacionHandler(BaseHTTPRequestHandler):
     
@@ -2136,6 +2132,18 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
         if "/api/resultados" in self.path or "/api/estado_alumno" in self.path:
             return
         sys.stderr.write("%s - - [%s] %s\n" % (self.address_string(), self.log_date_time_string(), format%args))
+
+    def _enviar_respuesta_json(self, code, data):
+        """Helper para enviar respuestas JSON."""
+        body = json.dumps(data, ensure_ascii=False).encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _enviar_no_autorizado(self):
+        """Respuesta 401 estándar."""
+        self._enviar_respuesta_json(401, {"error": "No autorizado"})
 
     def do_GET(self):
         parsed = urlparse(self.path)
@@ -2149,10 +2157,22 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
             self.wfile.write(HTML_ALUMNO.encode("utf-8"))
 
         elif path == "/docente":
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.end_headers()
-            self.wfile.write(HTML_DOCENTE.encode("utf-8"))
+            # Si tiene sesión válida → enviar el dashboard
+            # Si NO tiene sesión → enviar SOLO el formulario de login
+            if _es_sesion_valida(self):
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+                self.send_header("Pragma", "no-cache")
+                self.end_headers()
+                self.wfile.write(HTML_DOCENTE_DASHBOARD.encode("utf-8"))
+            else:
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+                self.send_header("Pragma", "no-cache")
+                self.end_headers()
+                self.wfile.write(HTML_DOCENTE_LOGIN.encode("utf-8"))
 
         elif path == "/api/estado_alumno":
             carne = query.get("carne", [""])[0].strip().upper()
@@ -2170,11 +2190,9 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(resp, ensure_ascii=False).encode("utf-8"))
 
         elif path == "/api/resultados":
-            pin = query.get("pin", [""])[0]
-            if pin != PIN_DOCENTE:
-                self.send_response(401)
-                self.end_headers()
-                self.wfile.write(b'{"error": "No autorizado"}')
+            # Requiere sesión válida (cookie)
+            if not _es_sesion_valida(self):
+                self._enviar_no_autorizado()
                 return
 
             data = leer_resultados()
@@ -2184,11 +2202,11 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(data, ensure_ascii=False).encode("utf-8"))
 
         elif path == "/api/exportar_csv":
-            pin = query.get("pin", [""])[0]
-            if pin != PIN_DOCENTE:
-                self.send_response(401)
+            # Requiere sesión válida (cookie)
+            if not _es_sesion_valida(self):
+                self.send_response(302)
+                self.send_header("Location", "/docente")
                 self.end_headers()
-                self.wfile.write(b'No autorizado')
                 return
 
             data = leer_resultados()
@@ -2228,7 +2246,47 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
         path = parsed.path
         query = parse_qs(parsed.query)
 
-        if path == "/api/guardar_resultado":
+        if path == "/api/login_docente":
+            # --- ENDPOINT DE AUTENTICACIÓN ---
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length).decode("utf-8")
+            try:
+                data = json.loads(body)
+                pin_recibido = data.get("pin", "").strip()
+            except Exception:
+                pin_recibido = ""
+
+            # Comparación segura (timing-safe) del PIN
+            if hmac.compare_digest(pin_recibido, PIN_DOCENTE):
+                token = _generar_token_sesion()
+                print(f" [DOCENTE] Sesión iniciada exitosamente.")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                # Cookie HttpOnly + SameSite=Strict para máxima seguridad
+                cookie_value = f"{_SESSION_COOKIE_NAME}={token}; HttpOnly; SameSite=Strict; Path=/; Max-Age={_SESSION_MAX_AGE}"
+                self.send_header("Set-Cookie", cookie_value)
+                self.end_headers()
+                self.wfile.write(b'{"status": "ok"}')
+            else:
+                print(f" [DOCENTE] Intento fallido de acceso al panel.")
+                self.send_response(401)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b'{"error": "PIN incorrecto"}')
+
+        elif path == "/api/logout_docente":
+            # --- ENDPOINT DE CIERRE DE SESIÓN ---
+            token = _obtener_token_de_cookie(self)
+            if token:
+                _invalidar_sesion(token)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            # Eliminar la cookie
+            self.send_header("Set-Cookie", f"{_SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0")
+            self.end_headers()
+            self.wfile.write(b'{"status": "logged_out"}')
+
+        elif path == "/api/guardar_resultado":
             content_length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(content_length).decode("utf-8")
             try:
@@ -2246,14 +2304,12 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
                 self.wfile.write(f'{{"error": "{str(e)}"}}'.encode("utf-8"))
 
         elif path == "/api/permitir_reintento":
-            pin = query.get("pin", [""])[0]
-            carne = query.get("carne", [""])[0].strip().upper()
-            if pin != PIN_DOCENTE:
-                self.send_response(401)
-                self.end_headers()
-                self.wfile.write(b'{"error": "No autorizado"}')
+            # Requiere sesión válida (cookie)
+            if not _es_sesion_valida(self):
+                self._enviar_no_autorizado()
                 return
 
+            carne = query.get("carne", [""])[0].strip().upper()
             eliminado = eliminar_resultado_alumno(carne)
             print(f" [DOCENTE HABILITÓ REINTENTO] Carné: {carne}")
             self.send_response(200)
@@ -2262,11 +2318,9 @@ class EvaluacionHandler(BaseHTTPRequestHandler):
             self.wfile.write(b'{"status": "unlocked"}')
 
         elif path == "/api/limpiar_resultados":
-            pin = query.get("pin", [""])[0]
-            if pin != PIN_DOCENTE:
-                self.send_response(401)
-                self.end_headers()
-                self.wfile.write(b'{"error": "No autorizado"}')
+            # Requiere sesión válida (cookie)
+            if not _es_sesion_valida(self):
+                self._enviar_no_autorizado()
                 return
 
             with open(RESULTADOS_FILE, "w", encoding="utf-8") as f:
@@ -2295,7 +2349,8 @@ def main():
     print(f"     (o http://localhost:{PORT}/ si pruebas en esta misma PC)")
     print(f"\n  🔐 PANEL DE CONTROL DEL DOCENTE (Resultados en Vivo):")
     print(f"     http://localhost:{PORT}/docente")
-    print(f"     PIN de Acceso: {PIN_DOCENTE} (Visible, sin máscara)")
+    print(f"     PIN de Acceso: {PIN_DOCENTE}")
+    print(f"     🛡️  Autenticación blindada con sesiones server-side + cookie HttpOnly")
     print(f"\n  📁 Los resultados se guardan automáticamente en:")
     print(f"     {RESULTADOS_FILE}")
     print("\n  Presiona Ctrl + C en esta ventana para detener el servidor.")
